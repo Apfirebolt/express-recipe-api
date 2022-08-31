@@ -6,6 +6,7 @@ import { notFound, errorHandler } from './middleware/Error.js'
 import connectDB from './config/db.js'
 
 import userRoutes from './routes/UserRoutes.js'
+import recipeRoutes from './routes/RecipeRoutes.js'
 
 dotenv.config()
 
@@ -20,6 +21,7 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.json())
 
 app.use('/api/users', userRoutes)
+app.use('/api/recipes', recipeRoutes)
 
 const __dirname = path.resolve()
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')))
