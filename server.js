@@ -7,6 +7,8 @@ import connectDB from './config/db.js'
 
 import userRoutes from './routes/UserRoutes.js'
 import recipeRoutes from './routes/RecipeRoutes.js'
+import ingredientRoutes from './routes/IngredientRoutes.js'
+import stepRoutes from './routes/StepRoutes.js'
 
 dotenv.config()
 
@@ -22,6 +24,8 @@ app.use(express.json())
 
 app.use('/api/users', userRoutes)
 app.use('/api/recipes', recipeRoutes)
+app.use('/api/steps', stepRoutes)
+app.use('/api/ingredients', ingredientRoutes)
 
 const __dirname = path.resolve()
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')))
