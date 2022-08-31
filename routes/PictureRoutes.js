@@ -7,6 +7,7 @@ import {
   getPictures,
   getPictureById,
   deletePicture,
+  updatePicture
 } from "../controllers/PictureController.js";
 import { protect } from "../middleware/Auth.js";
 
@@ -49,5 +50,6 @@ router
 router.route("/:id")
   .get(getPictureById)
   .delete(protect, deletePicture)
+  .patch(protect, updatePicture)
 
 export default router;

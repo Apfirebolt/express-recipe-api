@@ -1,7 +1,6 @@
 import asyncHandler from "express-async-handler";
 import Picture from "../models/Picture.js";
 import Recipe from "../models/Recipe.js";
-import Step from "../models/Step.js";
 import fs from "fs";
 import Ingredient from "../models/Ingredient.js";
 
@@ -70,6 +69,26 @@ const getPictureById = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Update a single picture
+// @route   PATCH /api/pictures/id
+// @access  Private
+const updatePicture = asyncHandler(async (req, res) => {
+
+  const picture = await Picture.findOne({ _id: req.params.id})
+  if (picture) {
+    picture.title = req.body.title || picture.title
+
+    const updatedPicture = await picture.save()
+    res.json({
+      message: 'Picture data updated successfully',
+      data: updatedPicture
+    })
+  } else {
+    res.status(404)
+    throw new Error('Picture not found')
+  }
+})
+
 // @desc    Delete a single picture
 // @route   DELETE /api/pictures/id
 // @access  Private
@@ -107,4 +126,4 @@ const deletePicture = asyncHandler(async (req, res) => {
   }
 });
 
-export { addPicture, getPictures, getPictureById, deletePicture };
+export { addPicture, getPictures, getPictureById, deletePicture, updatePicture };
