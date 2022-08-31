@@ -6,29 +6,31 @@ import Step from '../models/Step.js'
 // @access  Private
 
 const addStep = asyncHandler(async (req, res) => {
-  const { title } = req.body
+  const { recipe, description } = req.body
 
-  const recipeExists = await Step.findOne({ title, user: req.user._id })
-
-  if (recipeExists) {
+  if (!recipe || !description) {
     res.status(400)
-    throw new Error('Step already exists')
+    throw new Error('Recipe and description fields are required')
   }
 
-  if (!title) {
-    res.status(400)
-    throw new Error('Please add a step title')
+  const relatedRecipe = await Recipe.findOne({ _id: recipe })
+
+  // Check if recipe owner is the logged in user
+  if (relatedRecipe.user.toString() !== req.user._id.toString()) {
+    res.status(401)
+    throw new Error('User not authorized to add step')
   }
 
   const step = await Step.create({
-    title,
-    user: req.user._id
+    recipe,
+    description,
   })
 
   if (step) {
     res.status(201).json({
       _id: step._id,
-      title: step.title,
+      description: step.description,
+      recipe: step.recipe
     })
   } else {
     res.status(400)
@@ -43,7 +45,6 @@ const getSteps = asyncHandler(async (req, res) => {
     const steps = await Step.find({})
     res.json(steps)
 })
-
 
 
 // @desc    Get user by ID
@@ -64,9 +65,17 @@ const getStepById = asyncHandler(async (req, res) => {
 // @route   PUT /api/steps/id
 // @access  Private
 const updateStep = asyncHandler(async (req, res) => {
-    const step = await Step.findOne({createdBy: req.user._id, _id: req.params.id})
+    const step = await Step.findOne({ _id: req.params.id})
     if (step) {
-      step.title = req.body.title || step.title
+      const relatedRecipe = await Recipe.findOne({ _id: step.recipe })
+
+      // Check if recipe owner is the logged in user
+      if (relatedRecipe.user.toString() !== req.user._id.toString()) {
+        res.status(401)
+        throw new Error('User not authorized to update step')
+      }
+
+      step.description = req.body.description || step.description
   
       const updatedStep = await step.save()
       res.json({
@@ -85,6 +94,14 @@ const updateStep = asyncHandler(async (req, res) => {
   const deleteStep = asyncHandler(async (req, res) => {
     const step = await Step.findOne({user: req.user._id, _id: req.params.id})
     if (step) {
+      const relatedRecipe = await Recipe.findOne({ _id: step.recipe })
+
+      // Check if recipe owner is the logged in user
+      if (relatedRecipe.user.toString() !== req.user._id.toString()) {
+        res.status(401)
+        throw new Error('User not authorized to delete step')
+      }
+
       await step.remove();
   
       res.json({
