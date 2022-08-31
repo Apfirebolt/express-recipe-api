@@ -1,11 +1,12 @@
 import express from "express";
 import multer from "multer";
-import path from 'path';
+import path from "path";
 const router = express.Router();
 import {
   addPicture,
   getPictures,
   getPictureById,
+  deletePicture,
 } from "../controllers/PictureController.js";
 import { protect } from "../middleware/Auth.js";
 
@@ -41,7 +42,12 @@ const upload = multer({
   },
 });
 
-router.route("/").post(protect, upload.single("file"), addPicture).get(getPictures);
-router.route("/:id").get(getPictureById);
+router
+  .route("/")
+  .post(protect, upload.single("file"), addPicture)
+  .get(getPictures);
+router.route("/:id")
+  .get(getPictureById)
+  .delete(protect, deletePicture)
 
 export default router;

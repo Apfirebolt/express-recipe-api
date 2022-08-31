@@ -2,6 +2,7 @@ import asyncHandler from "express-async-handler";
 import Picture from "../models/Picture.js";
 import Recipe from "../models/Recipe.js";
 import Step from "../models/Step.js";
+import fs from "fs";
 import Ingredient from "../models/Ingredient.js";
 
 // @desc    Auth user & get token
@@ -11,7 +12,7 @@ import Ingredient from "../models/Ingredient.js";
 const addPicture = asyncHandler(async (req, res) => {
   const { title, recipe, ingredient } = req.body;
 
-  if (!recipe && !ingredient || !title) {
+  if ((!recipe && !ingredient) || !title) {
     res.status(400);
     throw new Error("Title and Recipe or Ingredient is required");
   }
@@ -38,7 +39,7 @@ const addPicture = asyncHandler(async (req, res) => {
         _id: picture._id,
         title: picture.title,
         name: picture.name,
-        recipe: picture.recipe
+        recipe: picture.recipe,
       });
     } else {
       res.status(400);
@@ -69,8 +70,41 @@ const getPictureById = asyncHandler(async (req, res) => {
   }
 });
 
-export {
-  addPicture,
-  getPictures,
-  getPictureById,
-};
+// @desc    Delete a single picture
+// @route   DELETE /api/pictures/id
+// @access  Private
+const deletePicture = asyncHandler(async (req, res) => {
+  const picture = await Picture.findOne({ _id: req.params.id });
+  if (picture) {
+    if (picture.recipe) {
+      const relatedRecipe = await Recipe.findOne({ _id: picture.recipe });
+
+      // Check if recipe owner is the logged in user
+      if (relatedRecipe.user.toString() !== req.user._id.toString()) {
+        res.status(401);
+        throw new Error("User not authorized to delete picture");
+      }
+    }
+
+    const filename = picture.name;
+    fs.unlink("./uploads/" + filename, (err) => {
+      if (err) {
+        res.status(500).json({
+          message: "Something went wrong",
+          success: false,
+        });
+      }
+    });
+
+    await picture.remove();
+
+    res.json({
+      message: "Picture removed",
+    });
+  } else {
+    res.status(404);
+    throw new Error("Picture not found");
+  }
+});
+
+export { addPicture, getPictures, getPictureById, deletePicture };
