@@ -9,10 +9,14 @@ const pictureSchema = mongoose.Schema(
     },
     ingredient: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
+      required: false,
       ref: "Ingredient",
     },
     title: {
+      type: String,
+      required: true,
+    },
+    name: {
       type: String,
       required: true,
     },

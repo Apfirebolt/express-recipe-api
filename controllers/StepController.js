@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler'
 import Step from '../models/Step.js'
+import Recipe from '../models/Recipe.js'
 
 // @desc    Auth user & get token
 // @route   POST /api/steps

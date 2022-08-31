@@ -1,5 +1,8 @@
 import asyncHandler from 'express-async-handler'
 import Recipe from '../models/Recipe.js'
+import Step from '../models/Step.js'
+import Ingredient from '../models/Ingredient.js'
+import Picture from '../models/Picture.js'
 
 // @desc    Auth user & get token
 // @route   POST /api/recipes
@@ -53,7 +56,16 @@ const getRecipeById = asyncHandler(async (req, res) => {
   const recipe = await Recipe.findById(req.params.id)
 
   if (recipe) {
-    res.json(recipe)
+    const ingredients = await Ingredient.find({ recipe: recipe._id })
+    const steps = await Step.find({ recipe: recipe._id })
+    const pictures = await Picture.find({ recipe: recipe._id })
+    const data = {
+      title: recipe.title,
+      ingredients,
+      steps,
+      pictures
+    }
+    res.json(data)
   } else {
     res.status(404)
     throw new Error('Recipe not found')

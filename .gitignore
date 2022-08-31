@@ -9,6 +9,9 @@ node_modules/
 # testing
 /coverage
 
+# Media
+uploads
+
 # production
 /frontend/build
 

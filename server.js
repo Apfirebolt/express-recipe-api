@@ -9,6 +9,7 @@ import userRoutes from './routes/UserRoutes.js'
 import recipeRoutes from './routes/RecipeRoutes.js'
 import ingredientRoutes from './routes/IngredientRoutes.js'
 import stepRoutes from './routes/StepRoutes.js'
+import pictureRoutes from './routes/PictureRoutes.js'
 
 dotenv.config()
 
@@ -26,6 +27,7 @@ app.use('/api/users', userRoutes)
 app.use('/api/recipes', recipeRoutes)
 app.use('/api/steps', stepRoutes)
 app.use('/api/ingredients', ingredientRoutes)
+app.use('/api/pictures', pictureRoutes)
 
 const __dirname = path.resolve()
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')))
