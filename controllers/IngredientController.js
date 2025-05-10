@@ -104,11 +104,9 @@ const updateIngredient = asyncHandler(async (req, res) => {
         throw new Error('User not authorized to delete ingredient')
       }
 
-      await ingredient.remove();
-  
-      res.json({
-        message: 'Ingredient removed'
-      })
+      await ingredient.deleteOne();
+
+      res.status(204).send();
     } else {
       res.status(404)
       throw new Error('Ingredient not found')
