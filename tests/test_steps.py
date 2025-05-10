@@ -52,7 +52,7 @@ def test_get_steps(auth_token):
 
 def test_get_step_by_id(auth_token):
     # Replace with a valid step ID
-    step_id = "681efb124f212fa67920b8ec"
+    step_id = "681f150d80f5cf9021b3b8b2"
     url = f"http://localhost:5000/api/steps/{step_id}"
 
     headers = {"Authorization": f"Bearer {auth_token}"}
@@ -68,7 +68,7 @@ def test_get_step_by_id(auth_token):
 
 def test_update_step(auth_token):
     # Replace with a valid step ID
-    step_id = "681efb124f212fa67920b8ec"
+    step_id = "681f150d80f5cf9021b3b8b2"
     url = f"http://localhost:5000/api/steps/{step_id}"
 
     payload = {"description": "Updated step description"}
@@ -91,13 +91,9 @@ def test_update_step(auth_token):
 
 def test_delete_step(auth_token):
     # Replace with a valid step ID
-    step_id = "681efb124f212fa67920b8ec"
+    step_id = "681f1ca580f5cf9021b3b91d"
     url = f"http://localhost:5000/api/steps/{step_id}"
 
     headers = {"Authorization": f"Bearer {auth_token}"}
     response = requests.delete(url, headers=headers)
-    assert response.status_code == 200
-
-    response_data = response.json()
-    assert "message" in response_data
-    assert response_data["message"] == "Step removed"
+    assert response.status_code == 204

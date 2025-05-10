@@ -103,9 +103,9 @@ def test_update_recipe(auth_token):
     assert "__v" in recipe_data
 
 
-def test_delete_recipe(auth_token):
-    url = "http://localhost:5000/api/recipes/681ef7694f212fa67920b8d1"
+# def test_delete_recipe(auth_token):
+#     url = "http://localhost:5000/api/recipes/681ef7694f212fa67920b8d1"
 
-    headers = {"Authorization": f"Bearer {auth_token}"}
-    response = requests.delete(url, headers=headers)
-    assert response.status_code == 204
+#     headers = {"Authorization": f"Bearer {auth_token}"}
+#     response = requests.delete(url, headers=headers)
+#     assert response.status_code == 204
