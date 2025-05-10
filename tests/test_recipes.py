@@ -55,7 +55,7 @@ def test_get_recipes(auth_token):
         assert "updatedAt" in recipe
         assert "__v" in recipe
 
-    
+
 def test_get_recipe_by_id(auth_token):
     url = "http://localhost:5000/api/recipes/681eea5cb491240630690a0f"  # Replace with a valid recipe ID
 
@@ -66,10 +66,46 @@ def test_get_recipe_by_id(auth_token):
 
     # Validate the response data
     assert "title" in response_data
-    assert response_data["title"] == "Spaghetti"
+    assert response_data["title"] == "Updated Spaghetti"
     assert "ingredients" in response_data
     assert isinstance(response_data["ingredients"], list)
     assert "steps" in response_data
     assert isinstance(response_data["steps"], list)
     assert "pictures" in response_data
     assert isinstance(response_data["pictures"], list)
+
+
+def test_update_recipe(auth_token):
+    url = "http://localhost:5000/api/recipes/681ef15e459ff5a1315f7cf1"  # Replace with a valid recipe ID
+
+    payload = {
+        "title": "New Dish",
+    }
+
+    headers = {"Authorization": f"Bearer {auth_token}"}
+    response = requests.put(url, json=payload, headers=headers)
+    assert response.status_code == 200
+    response_data = response.json()
+
+    # Validate the response data
+    assert "message" in response_data
+    assert response_data["message"] == "Recipe data updated successfully"
+    assert "data" in response_data
+
+    recipe_data = response_data["data"]
+    assert "_id" in recipe_data
+    assert recipe_data["_id"] == "681ef15e459ff5a1315f7cf1"
+    assert "title" in recipe_data
+    assert recipe_data["title"] == "New Dish"
+    assert "user" in recipe_data
+    assert "createdAt" in recipe_data
+    assert "updatedAt" in recipe_data
+    assert "__v" in recipe_data
+
+
+def test_delete_recipe(auth_token):
+    url = "http://localhost:5000/api/recipes/681ef7694f212fa67920b8d1"
+
+    headers = {"Authorization": f"Bearer {auth_token}"}
+    response = requests.delete(url, headers=headers)
+    assert response.status_code == 204
