@@ -37,6 +37,13 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error('User already exists')
   }
 
+  // check if email is valid
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(email)) {
+    res.status(400)
+    throw new Error('Invalid email address')
+  }
+
   const user = await User.create({
     username,
     email,
