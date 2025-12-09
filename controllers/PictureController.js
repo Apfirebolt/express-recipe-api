@@ -1,22 +1,21 @@
 import asyncHandler from "express-async-handler";
 import Picture from "../models/Picture.js";
 import Recipe from "../models/Recipe.js";
-import fs from "fs";
-import Ingredient from "../models/Ingredient.js";
+import fs from 'fs/promises';
 
 // @desc    Auth user & get token
 // @route   POST /api/pictures
 // @access  Private
 
 const addPicture = asyncHandler(async (req, res) => {
-  const { title, recipe, ingredient } = req.body;
+  const { title, recipe } = req.body;
 
-  if ((!recipe && !ingredient) || !title) {
+  if (!recipe || !title) {
     res.status(400);
-    throw new Error("Title and Recipe or Ingredient is required");
+    throw new Error("Title and Recipe is required");
   }
 
-  // Picture can either belong to recipe or ingredient, check for recipe first
+  // Recipe picture, check for recipe first
   if (recipe) {
     const relatedRecipe = await Recipe.findOne({ _id: recipe });
 
@@ -94,36 +93,33 @@ const updatePicture = asyncHandler(async (req, res) => {
 // @access  Private
 const deletePicture = asyncHandler(async (req, res) => {
   const picture = await Picture.findOne({ _id: req.params.id });
-  if (picture) {
-    if (picture.recipe) {
-      const relatedRecipe = await Recipe.findOne({ _id: picture.recipe });
 
-      // Check if recipe owner is the logged in user
-      if (relatedRecipe.user.toString() !== req.user._id.toString()) {
-        res.status(401);
-        throw new Error("User not authorized to delete picture");
-      }
-    }
-
-    const filename = picture.name;
-    fs.unlink("./uploads/" + filename, (err) => {
-      if (err) {
-        res.status(500).json({
-          message: "Something went wrong",
-          success: false,
-        });
-      }
-    });
-
-    await picture.remove();
-
-    res.json({
-      message: "Picture removed",
-    });
-  } else {
+  if (!picture) {
     res.status(404);
     throw new Error("Picture not found");
   }
+  
+  if (picture.recipe) {
+    const relatedRecipe = await Recipe.findOne({ _id: picture.recipe });
+    if (relatedRecipe.user.toString() !== req.user._id.toString()) {
+      res.status(401);
+      throw new Error("User not authorized to delete picture");
+    }
+  }
+
+  // Delete the physical file using await
+  try {
+    await fs.unlink("./uploads/" + picture.name);
+  } catch (err) {
+    // Log error but decide if you want to stop the DB deletion
+    console.error("File deletion failed:", err);
+  }
+
+  await Picture.deleteOne({ _id: picture._id });
+
+  res.json({
+    message: "Picture removed",
+  });
 });
 
 export { addPicture, getPictures, getPictureById, deletePicture, updatePicture };

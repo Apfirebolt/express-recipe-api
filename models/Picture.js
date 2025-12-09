@@ -7,11 +7,6 @@ const pictureSchema = mongoose.Schema(
       required: false,
       ref: "Recipe",
     },
-    ingredient: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: false,
-      ref: "Ingredient",
-    },
     title: {
       type: String,
       required: true,

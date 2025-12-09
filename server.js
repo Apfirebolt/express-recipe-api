@@ -2,6 +2,7 @@ import path from 'path'
 import express from 'express'
 import dotenv from 'dotenv'
 import morgan from 'morgan'
+import cors from "cors";
 import { notFound, errorHandler } from './middleware/Error.js'
 import connectDB from './config/db.js'
 
@@ -22,6 +23,14 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 app.use(express.json())
+
+// Option 1: Allow requests from port 3000 only
+const corsOptions = {
+  origin: ['http://localhost:3000', 'http://localhost:5000', 'http://localhost'],
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 
 app.use('/api/users', userRoutes)
 app.use('/api/recipes', recipeRoutes)
