@@ -5,6 +5,7 @@ import morgan from 'morgan'
 import cors from "cors";
 import { notFound, errorHandler } from './middleware/Error.js'
 import connectDB from './config/db.js'
+import { connectProducer } from './utils/kafkaConnect.js';
 
 import userRoutes from './routes/UserRoutes.js'
 import recipeRoutes from './routes/RecipeRoutes.js'
@@ -23,6 +24,9 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 app.use(express.json())
+
+// Connect Kafka Producer
+connectProducer();
 
 // Option 1: Allow requests from port 3000 only
 const corsOptions = {

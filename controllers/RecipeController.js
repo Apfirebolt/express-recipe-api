@@ -3,6 +3,7 @@ import Recipe from "../models/Recipe.js";
 import Step from "../models/Step.js";
 import Ingredient from "../models/Ingredient.js";
 import Picture from "../models/Picture.js";
+import { sendJson } from "../utils/kafkaConnect.js";
 
 // @desc    Auth user & get token
 // @route   POST /api/recipes
@@ -29,6 +30,12 @@ const addRecipe = asyncHandler(async (req, res) => {
   });
 
   if (recipe) {
+    // Send message to Kafka topic
+    await sendJson("recipes", String(recipe._id), {
+      recipeId: recipe._id,
+      userId: req.user._id,
+      title: recipe.title,
+    });
     res.status(201).json({
       _id: recipe._id,
       title: recipe.title,
