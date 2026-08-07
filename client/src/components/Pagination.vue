@@ -1,72 +1,106 @@
 <template>
-    <nav
-    class="container mx-auto px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6"
+  <nav
+    class="container mx-auto px-4 py-4 flex items-center justify-between border-t border-cadet-grey/30 sm:px-6"
     aria-label="Pagination"
   >
+    <!-- Results Counter Display -->
     <div class="hidden sm:block">
-      <p class="text-sm text-gray-700">
+      <p class="text-sm text-dark-slate-grey">
         Showing
-        {{ " " }}
-        <span class="font-medium">{{ showCurrentIndex }}</span>
-        {{ " " }}
+        <span class="font-semibold text-dark">{{ startIndex }}</span>
         to
-        {{ " " }}
-        <span class="font-medium">
-          {{
-            currentPage * numberOfItemsPerPage < allUrls.total
-              ? currentPage * numberOfItemsPerPage
-              : allUrls.total
-          }}
-        </span>
-        {{ " " }}
+        <span class="font-semibold text-dark">{{ endIndex }}</span>
         of
-        {{ " " }}
-        <span class="font-medium">{{ allUrls.total }}</span>
-        {{ " " }}
-        results
+        <span class="font-semibold text-dark">{{ totalItems }}</span>
+        recipes
       </p>
     </div>
-    <div class="flex-1 flex justify-between sm:justify-end">
+
+    <!-- Navigation Buttons -->
+    <div class="flex-1 flex justify-between sm:justify-end space-x-3">
       <button
-        @click="previosPageHandler"
-        class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+        type="button"
+        :disabled="isFirstPage"
+        @click="previousPageHandler"
+        class="relative inline-flex items-center px-4 py-2 border border-cadet-grey/40 text-sm font-semibold rounded-md transition-colors duration-200 shadow-sm"
+        :class="[
+          isFirstPage
+            ? 'bg-ghost-grey/50 text-cadet-grey/50 border-cadet-grey/20 cursor-not-allowed'
+            : 'bg-ghost-grey text-dark-slate-grey hover:bg-light-blue hover:text-dark hover:border-cadet-grey'
+        ]"
       >
-        Previous
+        ← Previous
       </button>
+
       <button
+        type="button"
+        :disabled="isLastPage"
         @click="nextPageHandler"
-        class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+        class="relative inline-flex items-center px-4 py-2 border border-cadet-grey/40 text-sm font-semibold rounded-md transition-colors duration-200 shadow-sm"
+        :class="[
+          isLastPage
+            ? 'bg-ghost-grey/50 text-cadet-grey/50 border-cadet-grey/20 cursor-not-allowed'
+            : 'bg-ghost-grey text-dark-slate-grey hover:bg-light-blue hover:text-dark hover:border-cadet-grey'
+        ]"
       >
-        Next
+        Next →
       </button>
     </div>
   </nav>
 </template>
 
 <script setup>
-import { computed, toRefs } from "vue";
+import { computed } from "vue";
+
 const props = defineProps({
-  currentPage: Number,
-  numberOfItemsPerPage: Number,
-  allUrls: Object,
+  currentPage: {
+    type: Number,
+    required: true,
+    default: 1,
+  },
+  numberOfItemsPerPage: {
+    type: Number,
+    required: true,
+    default: 10,
+  },
+  
+  allRecipes: {
+    type: Object,
+    required: true,
+    default: () => ({ total: 0 }),
+  },
 });
 
-const emits = defineEmits(["goToPreviousPage", "goToNextPage"]);
-const {  currentPage, numberOfItemsPerPage, allUrls } = toRefs(props);
+const emit = defineEmits(["goToPreviousPage", "goToNextPage"]);
 
-const showCurrentIndex = computed(() => {
-  if (currentPage.value === 1) {
-    return 1;
-  } else {
-    return currentPage.value * numberOfItemsPerPage - numberOfItemsPerPage + 1;
+const totalItems = computed(() => props.allRecipes?.total || 0);
+
+const startIndex = computed(() => {
+  if (totalItems.value === 0) return 0;
+  return (props.currentPage - 1) * props.numberOfItemsPerPage + 1;
+});
+
+const endIndex = computed(() => {
+  const calculatedEnd = props.currentPage * props.numberOfItemsPerPage;
+  return calculatedEnd < totalItems.value ? calculatedEnd : totalItems.value;
+});
+
+const isFirstPage = computed(() => props.currentPage <= 1);
+
+const isLastPage = computed(() => {
+  if (totalItems.value === 0) return true;
+  return props.currentPage * props.numberOfItemsPerPage >= totalItems.value;
+});
+
+const previousPageHandler = () => {
+  if (!isFirstPage.value) {
+    emit("goToPreviousPage");
   }
-});
-
-const previosPageHandler = async () => {
-  emits("goToPreviousPage");
 };
 
 const nextPageHandler = () => {
-  emits("goToNextPage");
+  if (!isLastPage.value) {
+    emit("goToNextPage");
+  }
 };
 </script>
