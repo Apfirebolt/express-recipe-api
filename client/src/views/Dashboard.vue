@@ -79,8 +79,8 @@
       <div v-else-if="recipes.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div 
           v-for="recipe in recipes" 
-          :key="recipe.id"
-          class="bg-white rounded-2xl overflow-hidden border border-cadet-grey/20 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col"
+          :key="recipe._id"
+          class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 flex flex-col"
         >
 
           <!-- Recipe Body -->
@@ -89,10 +89,13 @@
               <h3 class="text-xl font-bold text-dark-slate-grey line-clamp-1">
                 {{ recipe.title }}
               </h3>
+                <p class="text-sm text-cadet-grey line-clamp-2 mt-1">
+                    {{ recipe.user.username || recipe.user.email }} | {{ new Date(recipe.createdAt).toLocaleDateString() }}
+                </p>
             </div>
 
             <!-- Actions Bar -->
-            <div class="pt-3 border-t border-cadet-grey/10 flex items-center justify-between">
+            <div class="pt-3 flex items-center justify-between">
               <div class="flex items-center space-x-2">
                 <router-link
                   :to="`/recipes/${recipe._id}`"
@@ -100,14 +103,6 @@
                 >
                   View
                 </router-link>
-                <button
-                  v-if="activeTab === 'my-recipes'"
-                  @click="deleteRecipeHandler(recipe.id)"
-                  type="button"
-                  class="px-3 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-semibold rounded-lg transition-colors"
-                >
-                  Delete
-                </button>
               </div>
             </div>
           </div>

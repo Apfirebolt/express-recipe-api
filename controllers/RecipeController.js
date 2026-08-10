@@ -57,7 +57,7 @@ const getRecipes = asyncHandler(async (req, res) => {
   const total = await Recipe.countDocuments({});
 
   // Fetch paginated recipes sorted by newest first
-  const recipes = await Recipe.find({})
+  const recipes = await Recipe.find({}).populate("user", "username email")
     .sort({ createdAt: -1 })
     .limit(pageSize)
     .skip(pageSize * (page - 1));
@@ -74,13 +74,14 @@ const getRecipes = asyncHandler(async (req, res) => {
 // @route   GET /api/recipes/:id
 // @access  Public
 const getRecipeById = asyncHandler(async (req, res) => {
-  const recipe = await Recipe.findById(req.params.id);
+  const recipe = await Recipe.findById(req.params.id).populate("user", "username email");
 
   if (recipe) {
     const ingredients = await Ingredient.find({ recipe: recipe._id });
     const steps = await Step.find({ recipe: recipe._id });
     const pictures = await Picture.find({ recipe: recipe._id });
     const data = {
+      createdBy: recipe.user,
       _id: recipe._id,
       title: recipe.title,
       ingredients,

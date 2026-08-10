@@ -49,7 +49,7 @@
           <span
             class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200/60 mb-3"
           >
-            🍳 Recipe
+            🍳 Recipe By {{ recipe.createdBy.username || recipe.createdBy.email }}
           </span>
           <h1
             class="text-3xl sm:text-4xl font-extrabold text-stone-900 tracking-tight"
@@ -64,12 +64,14 @@
         <!-- Action Buttons -->
         <div class="flex items-center gap-3">
           <button
+            v-if="user && user._id === recipe.createdBy._id" 
             @click="isDeleteModalOpen = true"
             class="px-4 py-2 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors cursor-pointer"
           >
             Delete
           </button>
           <router-link
+            v-if="user && user._id === recipe.createdBy._id" 
             :to="`/recipes/${recipe._id || recipe.id}/edit`"
             class="px-4 py-2 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-xl transition-colors"
           >
@@ -84,6 +86,7 @@
         
         <div class="space-y-4">
              <button
+              v-if="user && user._id === recipe.createdBy._id"  
               type="button"
               @click="isIngredientModalOpen = true"
               class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors cursor-pointer"
@@ -101,10 +104,7 @@
             <span
               class="text-xs font-semibold bg-stone-100 text-stone-600 px-2.5 py-1 rounded-full"
             >
-              {{ recipe.ingredients.length }}
-            </span>
-            <span v-if="recipe.ingredients.length === 0" class="text-xs font-semibold bg-stone-100 text-stone-600 px-2.5 py-1 rounded-full">
-              0
+              {{ recipe.ingredients.length }} Ingredients
             </span>
           </div>
 
@@ -144,6 +144,7 @@
         <div class="md:col-span-2 space-y-4">
             <div>
               <button
+                v-if="user && user._id === recipe.createdBy._id" 
                 type="button"
                 @click="isStepModalOpen = true"
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors cursor-pointer"
@@ -453,6 +454,7 @@ import {
   DialogPanel,
   DialogTitle,
 } from "@headlessui/vue";
+import { useAuth } from "../store/auth";
 import { useRecipeStore } from "../store/recipe";
 import { useIngredientStore } from "../store/ingredient";
 import { useStepStore } from "../store/step";
@@ -463,6 +465,7 @@ const router = useRouter();
 const recipeStore = useRecipeStore();
 const ingredientStore = useIngredientStore();
 const stepStore = useStepStore();
+const auth = useAuth();
 
 // Modal State
 const isIngredientModalOpen = ref(false);
@@ -477,10 +480,13 @@ const newIngredient = ref({ name: "", quantity: null });
 
 // Computed Pinia States
 const recipe = computed(() => recipeStore.getSingleRecipe);
+const user = computed(() => auth.getAuthData);
 const loading = computed(
   () =>
     recipeStore.isLoading || ingredientStore.isLoading || stepStore.isLoading,
 );
+
+console.log('User is ', user)
 
 // Toggle ingredient checkbox state
 const toggleCheck = (id) => {

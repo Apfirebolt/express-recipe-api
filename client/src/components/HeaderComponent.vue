@@ -34,7 +34,7 @@
                 to="/create-recipe"
                 class="text-primary hover:bg-dark/50 border border-primary/40 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center gap-1.5"
               >
-                <span>➕</span> Post Recipe
+               Post Recipe
               </router-link>
             </div>
           </div>
