@@ -95,7 +95,7 @@
             <div class="pt-3 border-t border-cadet-grey/10 flex items-center justify-between">
               <div class="flex items-center space-x-2">
                 <router-link
-                  :to="`/recipes/${recipe.id}`"
+                  :to="`/recipes/${recipe._id}`"
                   class="px-3 py-1.5 bg-ghost-grey text-dark-slate-grey hover:bg-light-blue text-xs font-semibold rounded-lg transition-colors"
                 >
                   View

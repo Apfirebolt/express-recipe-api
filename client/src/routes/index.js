@@ -34,6 +34,11 @@ const routes = [
         component: () => import('../views/CreateRecipe.vue')
     },
     {
+        path: '/recipes/:id',
+        name: 'RecipeDetails',
+        component: () => import('../views/RecipeDetail.vue')
+    },
+    {
         path: '/server-error',
         name: 'ServerError',
         component: () => import('../views/ServerError.vue')
