@@ -49,7 +49,7 @@
           <span
             class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200/60 mb-3"
           >
-            🍳 Recipe By {{ recipe.createdBy.username || recipe.createdBy.email }}
+            🍳 Recipe By {{ recipe && recipe.createdBy && recipe.createdBy.username || recipe && recipe.createdBy && recipe.createdBy.email }}
           </span>
           <h1
             class="text-3xl sm:text-4xl font-extrabold text-stone-900 tracking-tight"
@@ -485,8 +485,6 @@ const loading = computed(
   () =>
     recipeStore.isLoading || ingredientStore.isLoading || stepStore.isLoading,
 );
-
-console.log('User is ', user)
 
 // Toggle ingredient checkbox state
 const toggleCheck = (id) => {

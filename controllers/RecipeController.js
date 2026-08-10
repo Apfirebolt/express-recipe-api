@@ -70,6 +70,32 @@ const getRecipes = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Get my recipes
+// @route   GET /api/my-recipes
+// @access  Private
+
+const getMyRecipes = asyncHandler(async (req, res) => {
+  const pageSize = 50;
+  const page = Number(req.query.page) || 1;
+
+  // Get total count of documents for pagination metadata
+  const total = await Recipe.countDocuments({ user: req.user._id });
+
+  // Fetch paginated recipes sorted by newest first
+  const recipes = await Recipe.find({ user: req.user._id })
+    .populate("user", "username email")
+    .sort({ createdAt: -1 })
+    .limit(pageSize)
+    .skip(pageSize * (page - 1));
+
+  res.json({
+    recipes,
+    page,
+    pages: Math.ceil(total / pageSize),
+    total,
+  });
+});
+
 // @desc    Get user by ID
 // @route   GET /api/recipes/:id
 // @access  Public
@@ -135,4 +161,4 @@ const deleteRecipe = asyncHandler(async (req, res) => {
   }
 });
 
-export { addRecipe, getRecipes, getRecipeById, updateRecipe, deleteRecipe };
+export { addRecipe, getRecipes, getRecipeById, updateRecipe, deleteRecipe, getMyRecipes };

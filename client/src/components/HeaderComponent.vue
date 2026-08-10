@@ -34,6 +34,7 @@
                 to="/create-recipe"
                 class="text-primary hover:bg-dark/50 border border-primary/40 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center gap-1.5"
               >
+              <PlusIconOutline class="w-6 h-6 text-white" />
                Post Recipe
               </router-link>
             </div>
@@ -173,6 +174,7 @@ import { computed } from "vue";
 import { useAuth } from "../store/auth";
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
 import { MenuIcon, XIcon } from "@heroicons/vue/outline";
+import { PlusIcon as PlusIconOutline } from "@heroicons/vue/outline";
 
 const auth = useAuth();
 const userData = computed(() => auth.authData);

@@ -101,6 +101,34 @@ export const useRecipeStore = defineStore("recipe", {
       }
     },
 
+    // Fetch recipes created by the authenticated user
+    async fetchMyRecipes(params = {}) {
+      this.loading = true;
+      try {
+        const config = {
+          ...getAuthHeaders(),
+          params,
+        };
+        const response = await httpClient.get("recipes/my-recipes", config);
+        if (response.data) {
+          this.recipes = response.data.recipes || response.data;
+          if (response.data.total) {
+            this.pagination.total = response.data.total;
+            this.pagination.currentPage = params.page || 1;
+          }
+        }
+      } catch (error) {
+        let message = "Failed to fetch your recipes!";
+        if (error.response && error.response.data) {
+          message = error.response.data.message;
+        }
+        toast.error(message);
+        console.log("Error fetching my recipes:", error);
+      } finally {
+        this.loading = false;
+      }
+    },
+
     // Create / Upload new recipe
     async createRecipe(recipeData) {
       this.loading = true;
@@ -132,12 +160,8 @@ export const useRecipeStore = defineStore("recipe", {
         const config = getAuthHeaders();
         const response = await httpClient.put(`recipes/${id}`, recipeData, config);
         if (response.data) {
+          await this.fetchRecipeById(id);
           toast.success("Recipe updated successfully!");
-          const index = this.recipes.findIndex((r) => r._id === id || r.id === id);
-          if (index !== -1) {
-            this.recipes[index] = response.data;
-          }
-          this.singleRecipe = response.data;
           router.push(`/recipes/${id}`);
         }
       } catch (error) {

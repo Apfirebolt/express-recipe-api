@@ -27,7 +27,8 @@
         
         <!-- Navigation Tabs -->
         <div class="flex space-x-2 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
-          <button
+          <router-link
+            to="/my-recipes"
             type="button"
             @click="activeTab = 'my-recipes'"
             :class="[
@@ -38,19 +39,7 @@
             ]"
           >
             My Recipes
-          </button>
-          <button
-            type="button"
-            @click="activeTab = 'saved'"
-            :class="[
-              'px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap',
-              activeTab === 'saved'
-                ? 'bg-dark-slate-grey text-light-blue shadow-sm'
-                : 'text-cadet-grey hover:bg-cadet-grey/10 hover:text-dark-slate-grey'
-            ]"
-          >
-            Saved Recipe Box ({{ savedCount }})
-          </button>
+          </router-link>
         </div>
 
         <!-- Search Input -->
@@ -76,9 +65,9 @@
       </div>
 
       <!-- Recipes Grid -->
-      <div v-else-if="recipes.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div v-else-if="filteredRecipes.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div 
-          v-for="recipe in recipes" 
+          v-for="recipe in filteredRecipes" 
           :key="recipe._id"
           class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 flex flex-col"
         >
@@ -139,7 +128,12 @@ const recipeStore = useRecipeStore()
 const recipeLoading = computed(() => recipeStore.isLoading)
 const recipes = computed(() => recipeStore.getAllRecipes)
 
-console.log(recipes.value)
+const filteredRecipes = computed(() => {
+  if (!searchQuery.value.trim()) return recipes.value
+  return recipes.value.filter(recipe =>
+    recipe.title.toLowerCase().includes(searchQuery.value.toLowerCase())
+  )
+})
 
 const deleteRecipeHandler = (id) => {
   if (confirm('Are you sure you want to delete this recipe?')) {
