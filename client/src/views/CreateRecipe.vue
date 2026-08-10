@@ -31,38 +31,8 @@
               + Add Ingredient
             </button>
           </div>
-
-          <!-- Empty State -->
-          <div
-            v-if="recipe.ingredients.length === 0"
-            class="text-center py-6 border-2 border-dashed border-stone-200 rounded-xl text-stone-400 text-sm"
-          >
-            No ingredients added yet.
-          </div>
-
-          <!-- Ingredients List -->
-          <ul v-else class="space-y-2">
-            <li
-              v-for="(item, index) in recipe.ingredients"
-              :key="index"
-              class="flex items-center justify-between px-4 py-2.5 bg-stone-50 rounded-xl border border-stone-200/60 text-sm"
-            >
-              <span class="font-medium text-stone-800">{{ item.name }}</span>
-              <div class="flex items-center gap-4">
-                <span v-if="item.quantity" class="text-stone-500 font-mono text-xs">
-                  Qty: {{ item.quantity }}
-                </span>
-                <button
-                  type="button"
-                  @click="removeIngredient(index)"
-                  class="text-stone-400 hover:text-red-600 transition-colors text-xs font-semibold cursor-pointer"
-                >
-                  Remove
-                </button>
-              </div>
-            </li>
-          </ul>
         </div>
+
 
         <!-- Steps Section -->
         <div>
@@ -76,37 +46,6 @@
               + Add Step
             </button>
           </div>
-
-          <!-- Empty State -->
-          <div
-            v-if="recipe.steps.length === 0"
-            class="text-center py-6 border-2 border-dashed border-stone-200 rounded-xl text-stone-400 text-sm"
-          >
-            No steps added yet.
-          </div>
-
-          <!-- Steps List -->
-          <ol v-else class="space-y-2">
-            <li
-              v-for="(step, index) in recipe.steps"
-              :key="index"
-              class="flex items-start justify-between gap-4 px-4 py-3 bg-stone-50 rounded-xl border border-stone-200/60 text-sm"
-            >
-              <div class="flex gap-3">
-                <span class="flex-shrink-0 w-6 h-6 rounded-full bg-amber-100 text-amber-800 font-bold text-xs flex items-center justify-center">
-                  {{ index + 1 }}
-                </span>
-                <p class="text-stone-700 leading-relaxed">{{ step.description }}</p>
-              </div>
-              <button
-                type="button"
-                @click="removeStep(index)"
-                class="text-stone-400 hover:text-red-600 transition-colors text-xs font-semibold flex-shrink-0 cursor-pointer"
-              >
-                Remove
-              </button>
-            </li>
-          </ol>
         </div>
 
         <!-- Form Action -->
@@ -275,6 +214,9 @@
 
 <script setup>
 import { ref, reactive } from "vue";
+import { useRecipeStore } from "../store/recipe.js";
+import { useIngredientStore } from "../store/ingredient.js"; 
+import { useStepStore } from "../store/step.js";
 import {
   TransitionRoot,
   TransitionChild,
@@ -287,12 +229,13 @@ import {
 const isIngredientModalOpen = ref(false);
 const isStepModalOpen = ref(false);
 const isSubmitting = ref(false);
+const recipeStore = useRecipeStore();
+const stepStore = useStepStore();
+const ingredientStore = useIngredientStore();
 
 // Main Recipe Form
 const recipe = reactive({
   title: "",
-  ingredients: [],
-  steps: [],
 });
 
 // Temp Modal States
@@ -308,10 +251,7 @@ const newStep = reactive({
 // Add Ingredient to array and reset modal input
 const addIngredient = () => {
   if (!newIngredient.name.trim()) return;
-  recipe.ingredients.push({
-    name: newIngredient.name.trim(),
-    quantity: newIngredient.quantity ?? null,
-  });
+  ingredientStore.createIngredient({ name: newIngredient.name, quantity: newIngredient.quantity });
   newIngredient.name = "";
   newIngredient.quantity = null;
   isIngredientModalOpen.value = false;
@@ -320,9 +260,7 @@ const addIngredient = () => {
 // Add Step to array and reset modal input
 const addStep = () => {
   if (!newStep.description.trim()) return;
-  recipe.steps.push({
-    description: newStep.description.trim(),
-  });
+  stepStore.createStep({ description: newStep.description });
   newStep.description = "";
   isStepModalOpen.value = false;
 };
@@ -342,16 +280,13 @@ const handleSubmit = async () => {
   isSubmitting.value = true;
 
   try {
-    // Send data payload matching your Mongoose relationships
-    // e.g., POST /api/recipes with payload: { title, ingredients, steps }
-    console.log("Submitting Recipe Payload:", recipe);
-    
-    // Reset state after successful submit
-    // recipe.title = "";
-    // recipe.ingredients = [];
-    // recipe.steps = [];
+    await recipeStore.createRecipe(recipe);
+    // Reset form after successful submission
+    recipe.title = "";
+    recipe.ingredients = [];
+    recipe.steps = [];
   } catch (error) {
-    console.error("Failed to create recipe:", error);
+    console.error("Error creating recipe:", error);
   } finally {
     isSubmitting.value = false;
   }

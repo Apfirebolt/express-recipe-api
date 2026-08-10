@@ -1,9 +1,28 @@
 import { defineStore } from "pinia";
 import { useToast } from "vue-toastification";
+import Cookie from "js-cookie";
 import httpClient from "../plugins/interceptor";
 import router from "../routes";
 
 const toast = useToast();
+
+// Helper function to extract bearer token from cookie
+const getAuthHeaders = () => {
+  try {
+    const authData = Cookie.get("user");
+    if (!authData) return {};
+
+    const parsedData = JSON.parse(authData);
+    return {
+      headers: {
+        Authorization: `Bearer ${parsedData.token}`,
+      },
+    };
+  } catch (error) {
+    console.error("Error parsing user auth token from cookie:", error);
+    return {};
+  }
+};
 
 export const useRecipeStore = defineStore("recipe", {
   state: () => ({
@@ -37,7 +56,11 @@ export const useRecipeStore = defineStore("recipe", {
     async fetchRecipes(params = {}) {
       this.loading = true;
       try {
-        const response = await httpClient.get("recipes", { params });
+        const config = {
+          ...getAuthHeaders(),
+          params,
+        };
+        const response = await httpClient.get("recipes", config);
         if (response.data) {
           this.recipes = response.data.recipes || response.data;
           if (response.data.total) {
@@ -61,7 +84,8 @@ export const useRecipeStore = defineStore("recipe", {
     async fetchRecipeById(id) {
       this.loading = true;
       try {
-        const response = await httpClient.get(`recipes/${id}`);
+        const config = getAuthHeaders();
+        const response = await httpClient.get(`recipes/${id}`, config);
         if (response.data) {
           this.singleRecipe = response.data;
         }
@@ -81,7 +105,8 @@ export const useRecipeStore = defineStore("recipe", {
     async createRecipe(recipeData) {
       this.loading = true;
       try {
-        const response = await httpClient.post("recipes", recipeData);
+        const config = getAuthHeaders();
+        const response = await httpClient.post("recipes", recipeData, config);
         if (response.data && (response.status === 201 || response.status === 200)) {
           toast.success("Recipe published successfully!");
           this.recipes.unshift(response.data);
@@ -104,10 +129,11 @@ export const useRecipeStore = defineStore("recipe", {
     async updateRecipe(id, recipeData) {
       this.loading = true;
       try {
-        const response = await httpClient.put(`recipes/${id}`, recipeData);
+        const config = getAuthHeaders();
+        const response = await httpClient.put(`recipes/${id}`, recipeData, config);
         if (response.data) {
           toast.success("Recipe updated successfully!");
-          const index = this.recipes.findIndex((r) => r.id === id);
+          const index = this.recipes.findIndex((r) => r._id === id || r.id === id);
           if (index !== -1) {
             this.recipes[index] = response.data;
           }
@@ -131,9 +157,10 @@ export const useRecipeStore = defineStore("recipe", {
     async deleteRecipe(id) {
       this.loading = true;
       try {
-        const response = await httpClient.delete(`recipes/${id}`);
+        const config = getAuthHeaders();
+        const response = await httpClient.delete(`recipes/${id}`, config);
         if (response.status === 200 || response.status === 204) {
-          this.recipes = this.recipes.filter((r) => r.id !== id);
+          this.recipes = this.recipes.filter((r) => (r._id || r.id) !== id);
           toast.success("Recipe deleted successfully!");
         }
       } catch (error) {
