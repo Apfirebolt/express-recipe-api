@@ -81,6 +81,7 @@ const getRecipeById = asyncHandler(async (req, res) => {
     const steps = await Step.find({ recipe: recipe._id });
     const pictures = await Picture.find({ recipe: recipe._id });
     const data = {
+      _id: recipe._id,
       title: recipe.title,
       ingredients,
       steps,
