@@ -46,12 +46,28 @@ const addRecipe = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Get all recipes
-// @route   GET /api/recipes
+// @desc    Get all recipes (with pagination)
+// @route   GET /api/recipes?page=1
 // @access  Public
 const getRecipes = asyncHandler(async (req, res) => {
-  const recipes = await Recipe.find({});
-  res.json(recipes);
+  const pageSize = 50;
+  const page = Number(req.query.page) || 1;
+
+  // Get total count of documents for pagination metadata
+  const total = await Recipe.countDocuments({});
+
+  // Fetch paginated recipes sorted by newest first
+  const recipes = await Recipe.find({})
+    .sort({ createdAt: -1 })
+    .limit(pageSize)
+    .skip(pageSize * (page - 1));
+
+  res.json({
+    recipes,
+    page,
+    pages: Math.ceil(total / pageSize),
+    total,
+  });
 });
 
 // @desc    Get user by ID

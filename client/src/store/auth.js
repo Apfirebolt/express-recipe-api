@@ -25,7 +25,7 @@ export const useAuth = defineStore("auth", {
   actions: {
     async loginAction(loginData) {
       try {
-        const response = await httpClient.post("users/auth", loginData);
+        const response = await httpClient.post("users/login", loginData);
         if (response.data) {
           this.authData = response.data;
           toast.success("Login successful!");

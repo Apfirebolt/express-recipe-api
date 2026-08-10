@@ -32,6 +32,7 @@ const corsOptions = {
   origin: [
     "http://localhost:3000",
     "http://localhost:5000",
+    "http://localhost:8080",
     "http://localhost",
   ],
   optionsSuccessStatus: 200,
@@ -66,7 +67,6 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-// 2. CREATE AN ASYNC STARTUP FUNCTION
 async function startApplication() {
   try {
     // A. Connect Kafka Producer (Wait for it)

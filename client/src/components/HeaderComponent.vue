@@ -23,10 +23,10 @@
               </router-link>
 
               <router-link
-                to="/recipes"
+                to="/dashboard"
                 class="text-secondary hover:text-primary hover:bg-dark/40 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200"
               >
-                Explore Recipes
+                Dashboard
               </router-link>
 
               <router-link
