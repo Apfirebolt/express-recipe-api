@@ -49,7 +49,11 @@
           <span
             class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200/60 mb-3"
           >
-            🍳 Recipe By {{ recipe && recipe.createdBy && recipe.createdBy.username || recipe && recipe.createdBy && recipe.createdBy.email }}
+            🍳 Recipe By
+            {{
+              (recipe && recipe.createdBy && recipe.createdBy.username) ||
+              (recipe && recipe.createdBy && recipe.createdBy.email)
+            }}
           </span>
           <h1
             class="text-3xl sm:text-4xl font-extrabold text-stone-900 tracking-tight"
@@ -64,14 +68,14 @@
         <!-- Action Buttons -->
         <div class="flex items-center gap-3">
           <button
-            v-if="user && user._id === recipe.createdBy._id" 
+            v-if="user && user._id === recipe.createdBy?._id"
             @click="isDeleteModalOpen = true"
             class="px-4 py-2 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors cursor-pointer"
           >
             Delete
           </button>
           <router-link
-            v-if="user && user._id === recipe.createdBy._id" 
+            v-if="user && user._id === recipe.createdBy?._id"
             :to="`/recipes/${recipe._id || recipe.id}/edit`"
             class="px-4 py-2 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-xl transition-colors"
           >
@@ -83,16 +87,16 @@
       <!-- Grid Layout: Ingredients & Preparation Steps -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <!-- Left Column: Ingredients -->
-        
+
         <div class="space-y-4">
-             <button
-              v-if="user && user._id === recipe.createdBy._id"  
-              type="button"
-              @click="isIngredientModalOpen = true"
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors cursor-pointer"
-            >
-              + Add Ingredient
-            </button>
+          <button
+            v-if="user && user._id === recipe.createdBy?._id"
+            type="button"
+            @click="isIngredientModalOpen = true"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors cursor-pointer"
+          >
+            + Add Ingredient
+          </button>
           <div class="flex items-center justify-between">
             <h2
               class="text-xl font-bold text-stone-900 flex items-center gap-2"
@@ -100,16 +104,16 @@
               <span>🥕</span> Ingredients
             </h2>
             <!-- Ingredients Section -->
-            
+
             <span
               class="text-xs font-semibold bg-stone-100 text-stone-600 px-2.5 py-1 rounded-full"
             >
-              {{ recipe.ingredients.length }} Ingredients
+              {{ recipe.ingredients?.length || 0 }} Ingredients
             </span>
           </div>
 
           <div
-            v-if="recipe && recipe.ingredients.length === 0"
+            v-if="!recipe.ingredients || recipe.ingredients.length === 0"
             class="p-6 bg-stone-50 rounded-2xl border border-stone-100 text-center text-sm text-stone-400"
           >
             No ingredients listed for this recipe.
@@ -142,16 +146,16 @@
 
         <!-- Right Column: Preparation Steps -->
         <div class="md:col-span-2 space-y-4">
-            <div>
-              <button
-                v-if="user && user._id === recipe.createdBy._id" 
-                type="button"
-                @click="isStepModalOpen = true"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors cursor-pointer"
-              >
-                + Add Step
-              </button>
-            </div>
+          <div>
+            <button
+              v-if="user && user._id === recipe.createdBy?._id"
+              type="button"
+              @click="isStepModalOpen = true"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors cursor-pointer"
+            >
+              + Add Step
+            </button>
+          </div>
           <div class="flex items-center justify-between">
             <h2
               class="text-xl font-bold text-stone-900 flex items-center gap-2"
@@ -159,16 +163,16 @@
               <span>📝</span> Instructions
             </h2>
             <!-- Steps Section -->
-            
+
             <span
               class="text-xs font-semibold bg-stone-100 text-stone-600 px-2.5 py-1 rounded-full"
             >
-              {{ recipe.steps.length }} Steps
+              {{ recipe.steps?.length || 0 }} Steps
             </span>
           </div>
 
           <div
-            v-if="recipe && recipe.steps.length === 0"
+            v-if="!recipe.steps || recipe.steps.length === 0"
             class="p-6 bg-stone-50 rounded-2xl border border-stone-100 text-center text-sm text-stone-400"
           >
             No instructions provided for this recipe.
@@ -192,6 +196,56 @@
               </div>
             </li>
           </ol>
+        </div>
+      </div>
+
+      <!-- Pictures Section -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-bold text-stone-900 flex items-center gap-2">
+            <span>📷</span> Pictures
+          </h2>
+          <button
+            v-if="user && user._id === recipe.createdBy?._id && recipe.pictures && recipe.pictures.length > 0"
+            type="button"
+            @click="isUploadPictureModalOpen = true"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors cursor-pointer"
+          >
+            + Upload Picture
+          </button>
+        </div>
+
+        <div
+          v-if="!recipe.pictures || recipe.pictures.length === 0"
+          class="p-6 bg-stone-50 rounded-2xl border border-stone-100 text-center text-sm text-stone-400"
+        >
+          No pictures uploaded for this recipe.
+          <button
+            v-if="user && user._id === recipe.createdBy?._id"
+            type="button"
+            @click="isUploadPictureModalOpen = true"
+            class="ml-2 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors cursor-pointer"
+          >
+            + Upload Picture
+          </button>
+        </div>
+        <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div
+            v-for="picture in recipe.pictures"
+            :key="picture._id || picture.id"
+            class="relative rounded-xl overflow-hidden border border-stone-200 shadow-sm group"
+          >
+            <img
+              :src="picture.url || `/uploads/${picture.name}`"
+              :alt="picture.title || 'Recipe Picture'"
+              class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+            <div
+              class="absolute bottom-0 left-0 right-0 bg-stone-900/60 text-white text-xs font-medium px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              {{ picture.title || 'Untitled' }}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -274,173 +328,32 @@
     </TransitionRoot>
 
     <!-- ================= ADD INGREDIENT MODAL ================= -->
-    <TransitionRoot appear :show="isIngredientModalOpen" as="template">
-      <Dialog
-        as="div"
-        @close="isIngredientModalOpen = false"
-        class="relative z-50"
-      >
-        <TransitionChild
-          as="template"
-          enter="duration-300 ease-out"
-          enter-from="opacity-0"
-          enter-to="opacity-100"
-          leave="duration-200 ease-in"
-          leave-from="opacity-100"
-          leave-to="opacity-0"
-        >
-          <div class="fixed inset-0 bg-stone-900/40 backdrop-blur-xs" />
-        </TransitionChild>
+    <IngredientForm
+      v-if="isIngredientModalOpen"
+      :is-ingredient-modal-open="isIngredientModalOpen"
+      @submit-ingredient="addIngredient"
+      @close-ingredient-modal="closeIngredientModal"
+      :recipe="recipe"
+    />
 
-        <div class="fixed inset-0 overflow-y-auto">
-          <div class="flex min-h-full items-center justify-center p-4">
-            <TransitionChild
-              as="template"
-              enter="duration-300 ease-out"
-              enter-from="opacity-0 scale-95"
-              enter-to="opacity-100 scale-100"
-              leave="duration-200 ease-in"
-              leave-from="opacity-100 scale-100"
-              leave-to="opacity-0 scale-95"
-            >
-              <DialogPanel
-                class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all border border-stone-100"
-              >
-                <DialogTitle
-                  as="h3"
-                  class="text-lg font-bold text-stone-900 mb-4"
-                >
-                  Add Ingredient
-                </DialogTitle>
-
-                <form @submit.prevent="addIngredient" class="space-y-4">
-                  <div>
-                    <label
-                      class="block text-xs font-medium text-stone-700 uppercase tracking-wider mb-1"
-                    >
-                      Ingredient Name <span class="text-red-500">*</span>
-                    </label>
-                    <input
-                      v-model="newIngredient.name"
-                      type="text"
-                      placeholder="e.g., Heavy Cream"
-                      class="w-full px-3.5 py-2 text-sm rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      class="block text-xs font-medium text-stone-700 uppercase tracking-wider mb-1"
-                    >
-                      Quantity (Optional)
-                    </label>
-                    <input
-                      v-model.number="newIngredient.quantity"
-                      type="number"
-                      step="any"
-                      placeholder="e.g., 200"
-                      class="w-full px-3.5 py-2 text-sm rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                    />
-                  </div>
-
-                  <div class="mt-6 flex justify-end gap-3">
-                    <button
-                      type="button"
-                      @click="isIngredientModalOpen = false"
-                      class="px-4 py-2 text-xs font-semibold text-stone-600 hover:bg-stone-100 rounded-lg transition-colors cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      class="px-4 py-2 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors cursor-pointer"
-                    >
-                      Add
-                    </button>
-                  </div>
-                </form>
-              </DialogPanel>
-            </TransitionChild>
-          </div>
-        </div>
-      </Dialog>
-    </TransitionRoot>
+    <!-- ================= ADD PICTURE MODAL ================= -->
+    <PictureUpload
+      v-if="isUploadPictureModalOpen"
+      :recipe-id="recipe._id || recipe.id"
+      :is-picture-modal-open="isUploadPictureModalOpen"
+      @uploaded="handlePictureUploaded"
+      @close-picture-modal="closeUploadPictureModal"
+      :recipe="recipe"
+    />
 
     <!-- ================= ADD STEP MODAL ================= -->
-    <TransitionRoot appear :show="isStepModalOpen" as="template">
-      <Dialog as="div" @close="isStepModalOpen = false" class="relative z-50">
-        <TransitionChild
-          as="template"
-          enter="duration-300 ease-out"
-          enter-from="opacity-0"
-          enter-to="opacity-100"
-          leave="duration-200 ease-in"
-          leave-from="opacity-100"
-          leave-to="opacity-0"
-        >
-          <div class="fixed inset-0 bg-stone-900/40 backdrop-blur-xs" />
-        </TransitionChild>
-
-        <div class="fixed inset-0 overflow-y-auto">
-          <div class="flex min-h-full items-center justify-center p-4">
-            <TransitionChild
-              as="template"
-              enter="duration-300 ease-out"
-              enter-from="opacity-0 scale-95"
-              enter-to="opacity-100 scale-100"
-              leave="duration-200 ease-in"
-              leave-from="opacity-100 scale-100"
-              leave-to="opacity-0 scale-95"
-            >
-              <DialogPanel
-                class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all border border-stone-100"
-              >
-                <DialogTitle
-                  as="h3"
-                  class="text-lg font-bold text-stone-900 mb-4"
-                >
-                  Add Step {{ recipe.steps.length + 1 }}
-                </DialogTitle>
-
-                <form @submit.prevent="addStep" class="space-y-4">
-                  <div>
-                    <label
-                      class="block text-xs font-medium text-stone-700 uppercase tracking-wider mb-1"
-                    >
-                      Step Description <span class="text-red-500">*</span>
-                    </label>
-                    <textarea
-                      v-model="newStep.description"
-                      rows="3"
-                      placeholder="e.g., Sauté garlic in olive oil until golden brown..."
-                      class="w-full px-3.5 py-2 text-sm rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none"
-                      required
-                    ></textarea>
-                  </div>
-
-                  <div class="mt-6 flex justify-end gap-3">
-                    <button
-                      type="button"
-                      @click="isStepModalOpen = false"
-                      class="px-4 py-2 text-xs font-semibold text-stone-600 hover:bg-stone-100 rounded-lg transition-colors cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      class="px-4 py-2 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors cursor-pointer"
-                    >
-                      Add Step
-                    </button>
-                  </div>
-                </form>
-              </DialogPanel>
-            </TransitionChild>
-          </div>
-        </div>
-      </Dialog>
-    </TransitionRoot>
+    <StepForm
+      v-if="isStepModalOpen"
+      :is-step-modal-open="isStepModalOpen"
+      @submit-step="addStep"
+      @close-step-modal="closeStepModal"
+      :recipe="recipe"
+    />
   </div>
 </template>
 
@@ -458,6 +371,11 @@ import { useAuth } from "../store/auth";
 import { useRecipeStore } from "../store/recipe";
 import { useIngredientStore } from "../store/ingredient";
 import { useStepStore } from "../store/step";
+import { usePictureStore } from "../store/picture";
+
+import PictureUpload from "../components/PictureUpload.vue";
+import IngredientForm from "../components/IngredientForm.vue";
+import StepForm from "../components/StepForm.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -466,17 +384,29 @@ const recipeStore = useRecipeStore();
 const ingredientStore = useIngredientStore();
 const stepStore = useStepStore();
 const auth = useAuth();
+const pictureStore = usePictureStore();
 
 // Modal State
 const isIngredientModalOpen = ref(false);
 const isStepModalOpen = ref(false);
+const isUploadPictureModalOpen = ref(false);
+
+const closeIngredientModal = () => {
+  isIngredientModalOpen.value = false;
+};
+
+const closeStepModal = () => {
+  isStepModalOpen.value = false;
+};
+
+const closeUploadPictureModal = () => {
+  isUploadPictureModalOpen.value = false;
+};
 
 // Modals & Local UI State
 const isDeleteModalOpen = ref(false);
 const isDeleting = ref(false);
 const checkedItems = ref(new Set());
-const newStep = ref({ description: "" });
-const newIngredient = ref({ name: "", quantity: null });
 
 // Computed Pinia States
 const recipe = computed(() => recipeStore.getSingleRecipe);
@@ -505,30 +435,35 @@ const formatDate = (dateString) => {
   });
 };
 
-// Add Ingredient to array and reset modal input
-const addIngredient = () => {
-  if (!newIngredient.value.name.trim()) return;
-  ingredientStore.createIngredient({
-    name: newIngredient.value.name,
-    quantity: newIngredient.value.quantity,
-    recipe: recipe.value._id
-  });
-  newIngredient.value.name = "";
-  newIngredient.value.quantity = null;
+// Add Ingredient
+const addIngredient = (data) => {
   isIngredientModalOpen.value = false;
-  // call the recipe store to fetch the updated recipe with ingredients
+  const ingredientData = {
+    recipe: recipe.value._id,
+    name: data.name,
+    quantity: data.quantity,
+  };
+  ingredientStore.createIngredient(ingredientData);
   recipeStore.fetchRecipeById(recipe.value._id);
 };
 
-// Add Step to array and reset modal input
-const addStep = () => {
-  if (!newStep.value.description.trim()) return;
-  stepStore.createStep({ description: newStep.value.description, recipe: recipe.value._id });
-  newStep.value.description = "";
+// Add Step
+const addStep = (data) => {
   isStepModalOpen.value = false;
-
-  // call the recipe store to fetch the updated recipe with steps
+  const stepData = {
+    recipe: recipe.value._id,
+    description: data.description,
+  };
+  stepStore.createStep(stepData);
   recipeStore.fetchRecipeById(recipe.value._id);
+};
+
+// Handle Picture Uploaded event
+const handlePictureUploaded = () => {
+  isUploadPictureModalOpen.value = false;
+  if (recipe.value && (recipe.value._id || recipe.value.id)) {
+    recipeStore.fetchRecipeById(recipe.value._id || recipe.value.id);
+  }
 };
 
 // Handle Deletion
@@ -538,7 +473,7 @@ const handleDelete = async () => {
   try {
     await recipeStore.deleteRecipe(recipeId);
     isDeleteModalOpen.value = false;
-    router.push("/recipes");
+    router.push("/dashboard");
   } catch (error) {
     console.error("Failed to delete recipe:", error);
   } finally {
@@ -550,9 +485,7 @@ const handleDelete = async () => {
 onMounted(async () => {
   const recipeId = route.params.id;
   if (recipeId) {
-    await Promise.all([
-      recipeStore.fetchRecipeById(recipeId),
-    ]);
+    await Promise.all([recipeStore.fetchRecipeById(recipeId)]);
   }
 });
 
