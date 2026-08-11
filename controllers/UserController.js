@@ -173,6 +173,25 @@ const updateUser = asyncHandler(async (req, res) => {
   }
 })
 
+// update password for logged in user
+const updatePassword = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id)
+
+  if (user) {
+    if (await user.matchPassword(req.body.currentPassword)) {
+      user.password = req.body.newPassword
+      await user.save()
+      res.json({ message: 'Password updated successfully' })
+    } else {
+      res.status(400)
+      throw new Error('Current password is incorrect')
+    }
+  } else {
+    res.status(404)
+    throw new Error('User not found')
+  }
+})
+
 export {
   authUser,
   registerUser,
@@ -182,4 +201,5 @@ export {
   deleteUser,
   getUserById,
   updateUser,
+  updatePassword,
 }

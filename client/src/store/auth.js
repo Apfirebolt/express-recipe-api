@@ -79,6 +79,60 @@ export const useAuth = defineStore("auth", {
       }
     },
 
+    async updateProfileData(profileData) {
+      try {
+        // get the token from the cookie
+        const authData = Cookie.get("user");
+        const headers = {
+          Authorization: `Bearer ${JSON.parse(authData).token}`,
+        };
+        const response = await httpClient.put(
+          "users/profile",
+          profileData,
+          { headers }
+        );
+        if (response.data) {
+          this.authData = response.data;
+          toast.success("Profile updated successfully!");
+          Cookie.set("user", JSON.stringify(response.data), { expires: 30 });
+        }
+      } catch (error) {
+        let message = "An error occurred!";
+        if (error.response && error.response.data) {
+          message = error.response.data.message;
+        }
+        toast.error(message);
+        console.log(error);
+        return error;
+      }
+    },
+
+    async changePassword(passwordData) {
+      try {
+        // get the token from the cookie
+        const authData = Cookie.get("user");
+        const headers = {
+          Authorization: `Bearer ${JSON.parse(authData).token}`,
+        };
+        const response = await httpClient.post(
+          "users/change-password",
+          passwordData,
+          { headers }
+        );
+        if (response.data) {
+          toast.success("Password changed successfully!");
+        }
+      } catch (error) {
+        let message = "An error occurred!";
+        if (error.response && error.response.data) {
+          message = error.response.data.message;
+        }
+        toast.error(message);
+        console.log(error);
+        return error;
+      }
+    },
+
     logout() {
       this.authData = null;
       Cookie.remove("user");

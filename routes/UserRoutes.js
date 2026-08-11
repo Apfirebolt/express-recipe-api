@@ -9,11 +9,13 @@ import {
   deleteUser,
   getUserById,
   updateUser,
+  updatePassword,
 } from '../controllers/UserController.js'
 import { protect, admin } from '../middleware/Auth.js'
 
 router.route('/').post(registerUser).get(getUsers)
 router.post('/login', authUser)
+router.post('/change-password', protect, updatePassword)
 router
   .route('/profile')
   .get(protect, getUserProfile)
