@@ -174,8 +174,8 @@ import {
 import { usePictureStore } from "../store/picture";
 
 const props = defineProps({
-  recipeId: {
-    type: String,
+  recipe: {
+    type: Object,
     required: true,
   },
 });

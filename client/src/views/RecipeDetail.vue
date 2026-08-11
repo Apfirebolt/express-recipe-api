@@ -43,16 +43,17 @@
     <div v-else-if="recipe" class="space-y-8">
       <!-- Header / Title Section -->
       <div
-        class="bg-white rounded-3xl p-6 sm:p-8 border border-stone-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+        class="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
         <div>
           <span
-            class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200/60 mb-3"
+            class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-amber-700 bg-amber-50 px-3.5 py-1 rounded-full border border-amber-200/60 mb-3"
           >
             🍳 Recipe By
             {{
-              (recipe && recipe.createdBy && recipe.createdBy.username) ||
-              (recipe && recipe.createdBy && recipe.createdBy.email)
+              recipe.createdBy?.username ||
+              recipe.createdBy?.email ||
+              'Chef'
             }}
           </span>
           <h1
@@ -72,51 +73,50 @@
             @click="isDeleteModalOpen = true"
             class="px-4 py-2 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors cursor-pointer"
           >
-            Delete
+            Delete Recipe
           </button>
           <router-link
             v-if="user && user._id === recipe.createdBy?._id"
             :to="`/recipes/${recipe._id || recipe.id}/edit`"
             class="px-4 py-2 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-xl transition-colors"
           >
-            Edit
+            Edit Title
           </router-link>
         </div>
       </div>
 
       <!-- Grid Layout: Ingredients & Preparation Steps -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
         <!-- Left Column: Ingredients -->
-
         <div class="space-y-4">
-          <button
-            v-if="user && user._id === recipe.createdBy?._id"
-            type="button"
-            @click="isIngredientModalOpen = true"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors cursor-pointer"
-          >
-            + Add Ingredient
-          </button>
           <div class="flex items-center justify-between">
-            <h2
-              class="text-xl font-bold text-stone-900 flex items-center gap-2"
-            >
-              <span>🥕</span> Ingredients
-            </h2>
-            <!-- Ingredients Section -->
+            <div class="flex items-center gap-2">
+              <h2 class="text-xl font-bold text-stone-900 flex items-center gap-1.5">
+                <span>🥕</span> Ingredients
+              </h2>
+              <span
+                class="text-xs font-semibold bg-stone-100 text-stone-600 px-2.5 py-0.5 rounded-full"
+              >
+                {{ recipe.ingredients?.length || 0 }}
+              </span>
+            </div>
 
-            <span
-              class="text-xs font-semibold bg-stone-100 text-stone-600 px-2.5 py-1 rounded-full"
+            <button
+              v-if="user && user._id === recipe.createdBy?._id"
+              type="button"
+              @click="isIngredientModalOpen = true"
+              class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors cursor-pointer"
             >
-              {{ recipe.ingredients?.length || 0 }} Ingredients
-            </span>
+              + Add
+            </button>
           </div>
 
           <div
             v-if="!recipe.ingredients || recipe.ingredients.length === 0"
-            class="p-6 bg-stone-50 rounded-2xl border border-stone-100 text-center text-sm text-stone-400"
+            class="p-6 bg-stone-50 rounded-2xl border border-stone-200/60 text-center text-sm text-stone-400"
           >
-            No ingredients listed for this recipe.
+            No ingredients listed yet.
           </div>
 
           <ul v-else class="space-y-2">
@@ -124,142 +124,170 @@
               v-for="ingredient in recipe.ingredients"
               :key="ingredient._id || ingredient.id"
               @click="toggleCheck(ingredient._id || ingredient.id)"
-              class="flex items-center justify-between p-3.5 bg-white rounded-xl border border-stone-100 shadow-2xs hover:border-amber-200 transition-all cursor-pointer select-none"
+              class="flex items-center justify-between p-3.5 bg-white rounded-xl border border-stone-200/80 shadow-2xs hover:border-amber-200 transition-all cursor-pointer select-none group"
               :class="{
                 'opacity-50 line-through bg-stone-50': checkedItems.has(
-                  ingredient._id || ingredient.id,
+                  ingredient._id || ingredient.id
                 ),
               }"
             >
               <span class="text-sm font-medium text-stone-800">
                 {{ ingredient.name }}
               </span>
-              <span
-                v-if="ingredient.quantity"
-                class="text-xs font-mono font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100"
-              >
-                {{ ingredient.quantity }}
-              </span>
-              <button
-                v-if="user && user._id === recipe.createdBy?._id"
-                type="button"
-                @click.stop="handleIngredientDelete(ingredient._id || ingredient.id)"
-                class="ml-3 inline-flex items-center gap-1.5 px-2 py-1 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors cursor-pointer"
-              >
-                <TrashIconOutline class="w-4 h-4" />
-              </button>
+
+              <div class="flex items-center gap-2">
+                <span
+                  v-if="ingredient.quantity"
+                  class="text-xs font-mono font-semibold text-amber-800 bg-amber-50/80 px-2 py-0.5 rounded-md border border-amber-200/60"
+                >
+                  {{ ingredient.quantity }}
+                </span>
+                
+                <button
+                  v-if="user && user._id === recipe.createdBy?._id"
+                  type="button"
+                  @click.stop="handleIngredientDelete(ingredient._id || ingredient.id)"
+                  class="p-1 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer opacity-80 sm:opacity-0 group-hover:opacity-100"
+                  title="Remove Ingredient"
+                >
+                  <TrashIconOutline class="w-4 h-4" />
+                </button>
+              </div>
             </li>
           </ul>
         </div>
 
         <!-- Right Column: Preparation Steps -->
         <div class="md:col-span-2 space-y-4">
-          <div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <h2 class="text-xl font-bold text-stone-900 flex items-center gap-1.5">
+                <span>📝</span> Instructions
+              </h2>
+              <span
+                class="text-xs font-semibold bg-stone-100 text-stone-600 px-2.5 py-0.5 rounded-full"
+              >
+                {{ recipe.steps?.length || 0 }} Steps
+              </span>
+            </div>
+
             <button
               v-if="user && user._id === recipe.createdBy?._id"
               type="button"
               @click="isStepModalOpen = true"
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors cursor-pointer"
+              class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors cursor-pointer"
             >
               + Add Step
             </button>
           </div>
-          <div class="flex items-center justify-between">
-            <h2
-              class="text-xl font-bold text-stone-900 flex items-center gap-2"
-            >
-              <span>📝</span> Instructions
-            </h2>
-            <!-- Steps Section -->
-
-            <span
-              class="text-xs font-semibold bg-stone-100 text-stone-600 px-2.5 py-1 rounded-full"
-            >
-              {{ recipe.steps?.length || 0 }} Steps
-            </span>
-          </div>
 
           <div
             v-if="!recipe.steps || recipe.steps.length === 0"
-            class="p-6 bg-stone-50 rounded-2xl border border-stone-100 text-center text-sm text-stone-400"
+            class="p-6 bg-stone-50 rounded-2xl border border-stone-200/60 text-center text-sm text-stone-400"
           >
             No instructions provided for this recipe.
           </div>
 
-          <ol v-else class="space-y-4">
+          <ol v-else class="space-y-3">
             <li
               v-for="(step, index) in recipe.steps"
               :key="step._id || step.id"
-              class="p-5 bg-white rounded-2xl border border-stone-100 shadow-2xs flex items-start gap-4"
+              class="p-5 bg-white rounded-2xl border border-stone-200/80 shadow-2xs flex items-start justify-between gap-4 group"
             >
-              <span
-                class="flex-shrink-0 w-8 h-8 rounded-xl bg-amber-600 text-white font-bold text-sm flex items-center justify-center shadow-xs"
-              >
-                {{ index + 1 }}
-              </span>
-              <div class="space-y-1">
-                <p class="text-stone-800 leading-relaxed text-sm">
+              <div class="flex items-start gap-3.5">
+                <span
+                  class="flex-shrink-0 w-7 h-7 rounded-xl bg-amber-600 text-white font-bold text-xs flex items-center justify-center shadow-2xs mt-0.5"
+                >
+                  {{ index + 1 }}
+                </span>
+                <p class="text-stone-800 leading-relaxed text-sm pt-0.5">
                   {{ step.description }}
                 </p>
-                <button
-                  v-if="user && user._id === recipe.createdBy?._id"
-                  type="button"
-                  @click="handleStepDelete(step._id || step.id)"
-                  class="inline-flex items-center gap-1.5 px-2 py-1 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors cursor-pointer mt-2"
-                >
-                  <TrashIconOutline class="w-4 h-4" />
-                </button>
               </div>
+
+              <button
+                v-if="user && user._id === recipe.createdBy?._id"
+                type="button"
+                @click="handleStepDelete(step._id || step.id)"
+                class="p-1.5 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer opacity-80 sm:opacity-0 group-hover:opacity-100 flex-shrink-0"
+                title="Remove Step"
+              >
+                <TrashIconOutline class="w-4 h-4" />
+              </button>
             </li>
           </ol>
         </div>
+
       </div>
 
       <!-- Pictures Section -->
-      <div class="space-y-4">
+      <div class="space-y-4 pt-4 border-t border-stone-200/60">
         <div class="flex items-center justify-between">
-          <h2 class="text-xl font-bold text-stone-900 flex items-center gap-2">
-            <span>📷</span> Pictures
-          </h2>
+          <div class="flex items-center gap-2">
+            <h2 class="text-xl font-bold text-stone-900 flex items-center gap-1.5">
+              <span>📷</span> Photos
+            </h2>
+            <span
+              class="text-xs font-semibold bg-stone-100 text-stone-600 px-2.5 py-0.5 rounded-full"
+            >
+              {{ recipe.pictures?.length || 0 }}
+            </span>
+          </div>
+
           <button
-            v-if="user && user._id === recipe.createdBy?._id && recipe.pictures && recipe.pictures.length > 0"
+            v-if="user && user._id === recipe.createdBy?._id"
             type="button"
-            @click="isUploadPictureModalOpen = true"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors cursor-pointer"
+            @click="openPictureModal"
+            class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors cursor-pointer"
           >
-            + Upload Picture
+            + Upload Photo
           </button>
         </div>
 
         <div
           v-if="!recipe.pictures || recipe.pictures.length === 0"
-          class="p-6 bg-stone-50 rounded-2xl border border-stone-100 text-center text-sm text-stone-400"
+          class="p-8 bg-stone-50 rounded-2xl border border-stone-200/60 text-center text-sm text-stone-400 space-y-2"
         >
-          No pictures uploaded for this recipe.
+          <p>No photos uploaded for this recipe yet.</p>
           <button
             v-if="user && user._id === recipe.createdBy?._id"
             type="button"
-            @click="isUploadPictureModalOpen = true"
-            class="ml-2 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors cursor-pointer"
+            @click="openPictureModal"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-700 bg-amber-100/60 hover:bg-amber-100 rounded-lg transition-colors cursor-pointer"
           >
-            + Upload Picture
+            + Add First Photo
           </button>
         </div>
+
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           <div
             v-for="picture in recipe.pictures"
             :key="picture._id || picture.id"
-            class="relative rounded-xl overflow-hidden border border-stone-200 shadow-sm group"
+            class="relative rounded-2xl overflow-hidden border border-stone-200 shadow-2xs group bg-stone-100"
           >
             <img
               :src="picture.url || `/uploads/${picture.name}`"
               :alt="picture.title || 'Recipe Picture'"
               class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
             />
+            
+            <!-- Picture Overlay Bar -->
             <div
-              class="absolute bottom-0 left-0 right-0 bg-stone-900/60 text-white text-xs font-medium px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+              class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-stone-900/80 via-stone-900/40 to-transparent text-white p-3 pt-6 flex items-end justify-between transition-opacity"
             >
-              {{ picture.title || 'Untitled' }}
+              <span class="text-xs font-medium truncate pr-2">
+                {{ picture.title || 'Untitled' }}
+              </span>
+
+              <button
+                v-if="user && user._id === recipe.createdBy?._id"
+                type="button"
+                @click="handlePictureDelete(picture._id || picture.id)"
+                class="p-1 bg-red-600/80 hover:bg-red-600 text-white rounded-lg transition-colors cursor-pointer flex-shrink-0"
+                title="Delete Photo"
+              >
+                <TrashIconOutline class="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
         </div>
@@ -269,7 +297,7 @@
     <!-- Empty / Error State -->
     <div
       v-else
-      class="text-center py-12 bg-white rounded-3xl border border-stone-100 p-8"
+      class="text-center py-12 bg-white rounded-3xl border border-stone-200/80 p-8 shadow-2xs"
     >
       <p class="text-stone-500 font-medium">
         Recipe not found or has been removed.
@@ -354,12 +382,11 @@
 
     <!-- ================= ADD PICTURE MODAL ================= -->
     <PictureUpload
-      v-if="isUploadPictureModalOpen"
-      :recipe-id="recipe._id || recipe.id"
-      :is-picture-modal-open="isUploadPictureModalOpen"
+      v-if="recipe"
+      ref="pictureModalRef"
+      :recipe="recipe"
       @uploaded="handlePictureUploaded"
       @close-picture-modal="closeUploadPictureModal"
-      :recipe="recipe"
     />
 
     <!-- ================= ADD STEP MODAL ================= -->
@@ -383,8 +410,8 @@ import {
   DialogPanel,
   DialogTitle,
 } from "@headlessui/vue";
-// thrash icon from heroicons
 import { TrashIcon as TrashIconOutline } from "@heroicons/vue/outline";
+
 import { useAuth } from "../store/auth";
 import { useRecipeStore } from "../store/recipe";
 import { useIngredientStore } from "../store/ingredient";
@@ -407,7 +434,6 @@ const pictureStore = usePictureStore();
 // Modal State
 const isIngredientModalOpen = ref(false);
 const isStepModalOpen = ref(false);
-const isUploadPictureModalOpen = ref(false);
 
 const closeIngredientModal = () => {
   isIngredientModalOpen.value = false;
@@ -417,21 +443,20 @@ const closeStepModal = () => {
   isStepModalOpen.value = false;
 };
 
-const closeUploadPictureModal = () => {
-  isUploadPictureModalOpen.value = false;
-};
+const closeUploadPictureModal = () => {};
 
 // Modals & Local UI State
 const isDeleteModalOpen = ref(false);
 const isDeleting = ref(false);
 const checkedItems = ref(new Set());
+const pictureModalRef = ref(null);
 
 // Computed Pinia States
 const recipe = computed(() => recipeStore.getSingleRecipe);
 const user = computed(() => auth.getAuthData);
 const loading = computed(
   () =>
-    recipeStore.isLoading || ingredientStore.isLoading || stepStore.isLoading,
+    recipeStore.isLoading || ingredientStore.isLoading || stepStore.isLoading
 );
 
 // Toggle ingredient checkbox state
@@ -440,6 +465,12 @@ const toggleCheck = (id) => {
     checkedItems.value.delete(id);
   } else {
     checkedItems.value.add(id);
+  }
+};
+
+const openPictureModal = () => {
+  if (pictureModalRef.value) {
+    pictureModalRef.value.openModal();
   }
 };
 
@@ -454,31 +485,30 @@ const formatDate = (dateString) => {
 };
 
 // Add Ingredient
-const addIngredient = (data) => {
+const addIngredient = async (data) => {
   isIngredientModalOpen.value = false;
   const ingredientData = {
     recipe: recipe.value._id,
     name: data.name,
     quantity: data.quantity,
   };
-  ingredientStore.createIngredient(ingredientData);
+  await ingredientStore.createIngredient(ingredientData);
   recipeStore.fetchRecipeById(recipe.value._id);
 };
 
 // Add Step
-const addStep = (data) => {
+const addStep = async (data) => {
   isStepModalOpen.value = false;
   const stepData = {
     recipe: recipe.value._id,
     description: data.description,
   };
-  stepStore.createStep(stepData);
+  await stepStore.createStep(stepData);
   recipeStore.fetchRecipeById(recipe.value._id);
 };
 
 // Handle Picture Uploaded event
 const handlePictureUploaded = () => {
-  isUploadPictureModalOpen.value = false;
   if (recipe.value && (recipe.value._id || recipe.value.id)) {
     recipeStore.fetchRecipeById(recipe.value._id || recipe.value.id);
   }
@@ -499,7 +529,7 @@ const handleDelete = async () => {
   }
 };
 
-// handle step delete 
+// Handle step delete 
 const handleStepDelete = async (stepId) => {
   try {
     await stepStore.deleteStep(stepId);
@@ -509,13 +539,23 @@ const handleStepDelete = async (stepId) => {
   }
 };
 
-// handle ingredient delete
+// Handle ingredient delete
 const handleIngredientDelete = async (ingredientId) => {
   try {
     await ingredientStore.deleteIngredient(ingredientId);
     recipeStore.fetchRecipeById(recipe.value._id);
   } catch (error) {
     console.error("Failed to delete ingredient:", error);
+  }
+};
+
+// Handle picture delete
+const handlePictureDelete = async (pictureId) => {
+  try {
+    await pictureStore.deletePicture(pictureId);
+    recipeStore.fetchRecipeById(recipe.value._id);
+  } catch (error) {
+    console.error("Failed to delete picture:", error);
   }
 };
 
