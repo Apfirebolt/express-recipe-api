@@ -1,5 +1,10 @@
 import path from "path";
+<<<<<<< Updated upstream:server.js
 import express from "express";
+=======
+import express, { Express, Request, Response, NextFunction } from "express";
+import { setupSwagger } from "./config/swagger.ts";
+>>>>>>> Stashed changes:server.ts
 import dotenv from "dotenv";
 import morgan from "morgan";
 import cors from "cors";
@@ -39,6 +44,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+setupSwagger(app);
 
 app.use("/api/users", userRoutes);
 app.use("/api/recipes", recipeRoutes);
@@ -64,8 +70,12 @@ if (process.env.NODE_ENV === "production") {
 
 app.use(notFound);
 app.use(errorHandler);
+<<<<<<< Updated upstream:server.js
 
 const PORT = process.env.PORT || 5000;
+=======
+const PORT: string | number = process.env.PORT || 5000;
+>>>>>>> Stashed changes:server.ts
 
 async function startApplication() {
   try {
