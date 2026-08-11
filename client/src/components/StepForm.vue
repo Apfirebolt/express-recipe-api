@@ -93,7 +93,6 @@ const onabort = () => {
 };
 
 const onSubmit = () => {
-  console.log('Submit new step:', newStep.value);  
   emit("submit-step", newStep.value);
   newStep.value.description = "";
 };

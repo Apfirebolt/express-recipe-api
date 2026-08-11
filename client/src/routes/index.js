@@ -3,13 +3,14 @@ import Home from '../views/Home.vue'
 import NotFound from '../views/NotFound.vue'
 import Cookie from 'js-cookie'
 
-const authGuard = (to, from, next) => {
+const authGuard = (to) => {
     const isAuthenticated = Cookie.get('user') ? true : false
+    
     if (to.name !== 'Login' && to.name !== 'Register' && !isAuthenticated) {
-        next({ name: 'Login' })
-    } else {
-        next()
+        return { name: 'Login' } // Redirects to Login
     }
+    
+    return true
 }
 
 const routes = [
@@ -48,7 +49,6 @@ const routes = [
         name: 'EditRecipe',
         component: () => import('../views/EditRecipe.vue')
     },
-    
     {
         path: '/server-error',
         name: 'ServerError',

@@ -140,6 +140,14 @@
               >
                 {{ ingredient.quantity }}
               </span>
+              <button
+                v-if="user && user._id === recipe.createdBy?._id"
+                type="button"
+                @click.stop="handleIngredientDelete(ingredient._id || ingredient.id)"
+                class="ml-3 inline-flex items-center gap-1.5 px-2 py-1 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors cursor-pointer"
+              >
+                <TrashIconOutline class="w-4 h-4" />
+              </button>
             </li>
           </ul>
         </div>
@@ -193,6 +201,14 @@
                 <p class="text-stone-800 leading-relaxed text-sm">
                   {{ step.description }}
                 </p>
+                <button
+                  v-if="user && user._id === recipe.createdBy?._id"
+                  type="button"
+                  @click="handleStepDelete(step._id || step.id)"
+                  class="inline-flex items-center gap-1.5 px-2 py-1 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors cursor-pointer mt-2"
+                >
+                  <TrashIconOutline class="w-4 h-4" />
+                </button>
               </div>
             </li>
           </ol>
@@ -367,6 +383,8 @@ import {
   DialogPanel,
   DialogTitle,
 } from "@headlessui/vue";
+// thrash icon from heroicons
+import { TrashIcon as TrashIconOutline } from "@heroicons/vue/outline";
 import { useAuth } from "../store/auth";
 import { useRecipeStore } from "../store/recipe";
 import { useIngredientStore } from "../store/ingredient";
@@ -478,6 +496,26 @@ const handleDelete = async () => {
     console.error("Failed to delete recipe:", error);
   } finally {
     isDeleting.value = false;
+  }
+};
+
+// handle step delete 
+const handleStepDelete = async (stepId) => {
+  try {
+    await stepStore.deleteStep(stepId);
+    recipeStore.fetchRecipeById(recipe.value._id);
+  } catch (error) {
+    console.error("Failed to delete step:", error);
+  }
+};
+
+// handle ingredient delete
+const handleIngredientDelete = async (ingredientId) => {
+  try {
+    await ingredientStore.deleteIngredient(ingredientId);
+    recipeStore.fetchRecipeById(recipe.value._id);
+  } catch (error) {
+    console.error("Failed to delete ingredient:", error);
   }
 };
 
