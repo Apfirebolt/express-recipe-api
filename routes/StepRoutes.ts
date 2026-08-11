@@ -5,8 +5,8 @@ import {
   getStepById,
   updateStep,
   deleteStep,
-} from "../controllers/StepController.js";
-import { protect } from "../middleware/Auth.js";
+} from "../controllers/StepController.ts";
+import { protect } from "../middleware/Auth.ts";
 
 const router: Router = express.Router();
 
