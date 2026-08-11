@@ -53,10 +53,10 @@
 
             <router-link
               v-if="userData"
-              to="/dashboard"
+              to="/settings"
               class="text-secondary hover:text-primary hover:bg-dark/40 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200"
             >
-              My Saved Box
+              Settings
             </router-link>
 
             <router-link
@@ -134,10 +134,10 @@
 
         <router-link
           v-if="userData"
-          to="/dashboard"
+          to="/settings"
           class="text-secondary hover:text-primary hover:bg-tertiary/30 block px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
         >
-          My Saved Box
+          Settings
         </router-link>
 
         <router-link

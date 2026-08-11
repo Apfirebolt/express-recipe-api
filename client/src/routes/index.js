@@ -60,6 +60,11 @@ const routes = [
         component: () => import('../views/Dashboard.vue')
     },
     {
+        path: '/settings',
+        name: 'Settings',
+        component: () => import('../views/Settings.vue')
+    },
+    {
         path: '/:catchAll(.*)',
         name: 'NotFound',
         component: NotFound

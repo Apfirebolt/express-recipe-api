@@ -79,7 +79,7 @@ export const useAuth = defineStore("auth", {
       }
     },
 
-    async updateProfileData(profileData) {
+    async updateProfile(profileData) {
       try {
         // get the token from the cookie
         const authData = Cookie.get("user");
