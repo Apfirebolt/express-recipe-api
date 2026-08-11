@@ -1,8 +1,9 @@
 import path from "path";
-import express, { Express, Request, Response, NextFunction } from "express";
+import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
 import cors, { CorsOptions } from "cors";
+import { setupSwagger } from "./config/swagger.ts";
 
 import { notFound, errorHandler } from "./middleware/Error.js";
 import connectDB from "./config/db.js";
@@ -41,6 +42,7 @@ const corsOptions: CorsOptions = {
 };
 
 app.use(cors(corsOptions));
+setupSwagger(app);
 
 // API Routes
 app.use("/api/users", userRoutes);
@@ -69,7 +71,7 @@ if (process.env.NODE_ENV === "production") {
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT: string | number = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 
 async function startApplication(): Promise<void> {
   try {
