@@ -1,5 +1,4 @@
-import express from 'express'
-const router = express.Router()
+import express, { Router } from "express";
 import {
   authUser,
   registerUser,
@@ -10,15 +9,10 @@ import {
   getUserById,
   updateUser,
   updatePassword,
-<<<<<<< Updated upstream:routes/UserRoutes.js
 } from '../controllers/UserController.js'
 import { protect, admin } from '../middleware/Auth.js'
-=======
-} from "../controllers/UserController.js";
-import { protect, admin } from "../middleware/Auth.js";
 
 const router: Router = express.Router();
->>>>>>> Stashed changes:routes/UserRoutes.ts
 
 /**
  * @openapi

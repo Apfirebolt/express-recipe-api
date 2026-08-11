@@ -1,13 +1,9 @@
 import path from "path";
-<<<<<<< Updated upstream:server.js
 import express from "express";
-=======
-import express, { Express, Request, Response, NextFunction } from "express";
-import { setupSwagger } from "./config/swagger.ts";
->>>>>>> Stashed changes:server.ts
 import dotenv from "dotenv";
 import morgan from "morgan";
-import cors from "cors";
+import cors, { CorsOptions } from "cors";
+
 import { notFound, errorHandler } from "./middleware/Error.js";
 import connectDB from "./config/db.js";
 
@@ -22,9 +18,10 @@ import pictureRoutes from "./routes/PictureRoutes.js";
 
 dotenv.config();
 
+// Initialize MongoDB Connection
 connectDB();
 
-const app = express();
+const app: Express = express();
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
@@ -32,8 +29,8 @@ if (process.env.NODE_ENV === "development") {
 
 app.use(express.json());
 
-// Option 1: Allow requests from port 3000 only
-const corsOptions = {
+// CORS configuration
+const corsOptions: CorsOptions = {
   origin: [
     "http://localhost:3000",
     "http://localhost:5000",
@@ -46,56 +43,51 @@ const corsOptions = {
 app.use(cors(corsOptions));
 setupSwagger(app);
 
+// API Routes
 app.use("/api/users", userRoutes);
 app.use("/api/recipes", recipeRoutes);
 app.use("/api/steps", stepRoutes);
 app.use("/api/ingredients", ingredientRoutes);
 app.use("/api/pictures", pictureRoutes);
 
+// Static files & Production setup
 const __dirname = path.resolve();
 app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "frontend/build")));
 
-  app.get("/", (req, res) =>
+  app.get("/", (req: Request, res: Response) =>
     res.sendFile(path.resolve(__dirname, "frontend/build", "index.html"))
   );
 } else {
-  app.get("/", (req, res) => {
-    // Corrected to send a string response
+  app.get("/", (req: Request, res: Response) => {
     res.send("API is running....");
   });
 }
 
+// Error Handling Middleware
 app.use(notFound);
 app.use(errorHandler);
-<<<<<<< Updated upstream:server.js
 
 const PORT = process.env.PORT || 5000;
-=======
-const PORT: string | number = process.env.PORT || 5000;
->>>>>>> Stashed changes:server.ts
 
-async function startApplication() {
+async function startApplication(): Promise<void> {
   try {
-    // A. Connect Kafka Producer (Wait for it)
+    // Connect Kafka Producer & Consumers
     await connectProducer();
-
     await startAllConsumers();
 
-    app.listen(
-      PORT,
+    app.listen(PORT, () => {
       console.log(
         `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`
-      )
-    );
-  } catch (error) {
+      );
+    });
+  } catch (error: unknown) {
     console.error(
       "❌ FATAL ERROR: Failed to start application services:",
       error
     );
-    // Exit the process if critical dependencies (Kafka/DB) fail
     process.exit(1);
   }
 }
