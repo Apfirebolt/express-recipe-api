@@ -64,16 +64,16 @@ const props = defineProps({
     default: 10,
   },
   
-  allRecipes: {
-    type: Object,
+  totalItems: {
+    type: Number,
     required: true,
-    default: () => ({ total: 0 }),
+    default: 0,
   },
 });
 
 const emit = defineEmits(["goToPreviousPage", "goToNextPage"]);
 
-const totalItems = computed(() => props.allRecipes?.total || 0);
+const totalItems = computed(() => props.totalItems || 0);
 
 const startIndex = computed(() => {
   if (totalItems.value === 0) return 0;

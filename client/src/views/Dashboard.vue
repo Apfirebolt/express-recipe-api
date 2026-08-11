@@ -30,12 +30,8 @@
           <router-link
             to="/my-recipes"
             type="button"
-            @click="activeTab = 'my-recipes'"
             :class="[
-              'px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap',
-              activeTab === 'my-recipes'
-                ? 'bg-dark-slate-grey text-light-blue shadow-sm'
-                : 'text-cadet-grey hover:bg-cadet-grey/10 hover:text-dark-slate-grey'
+              'px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap bg-dark-slate-grey text-light-blue shadow-sm',
             ]"
           >
             My Recipes
@@ -113,19 +109,29 @@
           Post a Recipe Now
         </router-link>
       </div>
+
+      <pagination-component
+          v-if="filteredRecipes.length > 0"
+          :current-page="currentPage"
+          :total-items="filteredRecipes.length"
+          :number-of-items-per-page="numberOfItemsPerPage"
+          @go-to-previous-page="goToPreviousPage"
+          @go-to-next-page="goToNextPage"
+        />
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import PaginationComponent from '../components/Pagination.vue'
 import { useRecipeStore } from '../store/recipe'
 
-const isLoading = ref(false)
-const activeTab = ref('my-recipes')
-const searchQuery = ref('')
 const recipeStore = useRecipeStore()
-const recipeLoading = computed(() => recipeStore.isLoading)
+const currentPage = ref(1)
+const numberOfItemsPerPage = 50;
+const isLoading = computed(() => recipeStore.isLoading)
+const searchQuery = ref('')
 const recipes = computed(() => recipeStore.getAllRecipes)
 
 const filteredRecipes = computed(() => {
@@ -135,10 +141,21 @@ const filteredRecipes = computed(() => {
   )
 })
 
-const deleteRecipeHandler = (id) => {
-  if (confirm('Are you sure you want to delete this recipe?')) {
-    myRecipes.value = myRecipes.value.filter(r => r.id !== id)
+const handlePageChange = (newPage) => {
+  currentPage.value = newPage
+  recipeStore.fetchRecipes({ page: newPage, search: searchQuery.value })
+}
+
+const goToPreviousPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--
+    recipeStore.fetchRecipes({ page: currentPage.value, search: searchQuery.value })
   }
+}
+
+const goToNextPage = () => {
+  currentPage.value++
+  recipeStore.fetchRecipes({ page: currentPage.value, search: searchQuery.value })
 }
 
 onMounted(() => {
