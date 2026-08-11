@@ -237,7 +237,7 @@ const handleUpload = async () => {
     // Form data fields matching req.body.title, req.body.recipe, req.file
     const formData = new FormData();
     formData.append("title", newPicture.title.trim());
-    formData.append("recipe", props.recipeId);
+    formData.append("recipe", props.recipe._id);
     formData.append("file", selectedFile.value);
 
     await pictureStore.addPicture(formData);

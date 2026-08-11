@@ -51,9 +51,7 @@
           >
             🍳 Recipe By
             {{
-              recipe.createdBy?.username ||
-              recipe.createdBy?.email ||
-              'Chef'
+              recipe.createdBy?.username || recipe.createdBy?.email || "Chef"
             }}
           </span>
           <h1
@@ -87,12 +85,13 @@
 
       <!-- Grid Layout: Ingredients & Preparation Steps -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        
         <!-- Left Column: Ingredients -->
         <div class="space-y-4">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <h2 class="text-xl font-bold text-stone-900 flex items-center gap-1.5">
+              <h2
+                class="text-xl font-bold text-stone-900 flex items-center gap-1.5"
+              >
                 <span>🥕</span> Ingredients
               </h2>
               <span
@@ -127,7 +126,7 @@
               class="flex items-center justify-between p-3.5 bg-white rounded-xl border border-stone-200/80 shadow-2xs hover:border-amber-200 transition-all cursor-pointer select-none group"
               :class="{
                 'opacity-50 line-through bg-stone-50': checkedItems.has(
-                  ingredient._id || ingredient.id
+                  ingredient._id || ingredient.id,
                 ),
               }"
             >
@@ -142,11 +141,13 @@
                 >
                   {{ ingredient.quantity }}
                 </span>
-                
+
                 <button
                   v-if="user && user._id === recipe.createdBy?._id"
                   type="button"
-                  @click.stop="handleIngredientDelete(ingredient._id || ingredient.id)"
+                  @click.stop="
+                    handleIngredientDelete(ingredient._id || ingredient.id)
+                  "
                   class="p-1 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer opacity-80 sm:opacity-0 group-hover:opacity-100"
                   title="Remove Ingredient"
                 >
@@ -161,7 +162,9 @@
         <div class="md:col-span-2 space-y-4">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <h2 class="text-xl font-bold text-stone-900 flex items-center gap-1.5">
+              <h2
+                class="text-xl font-bold text-stone-900 flex items-center gap-1.5"
+              >
                 <span>📝</span> Instructions
               </h2>
               <span
@@ -217,14 +220,15 @@
             </li>
           </ol>
         </div>
-
       </div>
 
       <!-- Pictures Section -->
       <div class="space-y-4 pt-4 border-t border-stone-200/60">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <h2 class="text-xl font-bold text-stone-900 flex items-center gap-1.5">
+            <h2
+              class="text-xl font-bold text-stone-900 flex items-center gap-1.5"
+            >
               <span>📷</span> Photos
             </h2>
             <span
@@ -259,24 +263,27 @@
           </button>
         </div>
 
-        <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div
+          v-else
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+        >
           <div
             v-for="picture in recipe.pictures"
             :key="picture._id || picture.id"
             class="relative rounded-2xl overflow-hidden border border-stone-200 shadow-2xs group bg-stone-100"
           >
             <img
-              :src="picture.url || `/uploads/${picture.name}`"
+              :src="picture.url || `http://localhost:5000/uploads/${picture.name}`"
               :alt="picture.title || 'Recipe Picture'"
               class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
             />
-            
+
             <!-- Picture Overlay Bar -->
             <div
               class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-stone-900/80 via-stone-900/40 to-transparent text-white p-3 pt-6 flex items-end justify-between transition-opacity"
             >
               <span class="text-xs font-medium truncate pr-2">
-                {{ picture.title || 'Untitled' }}
+                {{ picture.title || "Untitled" }}
               </span>
 
               <button
@@ -456,7 +463,7 @@ const recipe = computed(() => recipeStore.getSingleRecipe);
 const user = computed(() => auth.getAuthData);
 const loading = computed(
   () =>
-    recipeStore.isLoading || ingredientStore.isLoading || stepStore.isLoading
+    recipeStore.isLoading || ingredientStore.isLoading || stepStore.isLoading,
 );
 
 // Toggle ingredient checkbox state
@@ -529,7 +536,7 @@ const handleDelete = async () => {
   }
 };
 
-// Handle step delete 
+// Handle step delete
 const handleStepDelete = async (stepId) => {
   try {
     await stepStore.deleteStep(stepId);

@@ -37,13 +37,6 @@
 <script setup>
 import { ref, reactive } from "vue";
 import { useRecipeStore } from "../store/recipe.js";
-import {
-  TransitionRoot,
-  TransitionChild,
-  Dialog,
-  DialogPanel,
-  DialogTitle,
-} from "@headlessui/vue";
 
 const isSubmitting = ref(false);
 const recipeStore = useRecipeStore();
