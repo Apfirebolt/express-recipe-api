@@ -1,0 +1,169 @@
+import { Request, Response } from "express";
+import asyncHandler from "express-async-handler";
+import Step, { IStep } from "../models/Step.ts";
+import Recipe, { IRecipe } from "../models/Recipe.ts";
+
+// Interface for add step request body
+interface AddStepBody {
+  recipe?: string;
+  description?: string;
+}
+
+// Interface for update step request body
+interface UpdateStepBody {
+  description?: string;
+}
+
+// @desc    Add a new step
+// @route   POST /api/steps
+// @access  Private
+const addStep = asyncHandler(
+  async (req: Request<{}, {}, AddStepBody>, res: Response): Promise<void> => {
+    const { recipe, description } = req.body;
+
+    if (!recipe || !description) {
+      res.status(400);
+      throw new Error("Recipe and description fields are required");
+    }
+
+    if (!req.user) {
+      res.status(401);
+      throw new Error("Not authorized, no user attached");
+    }
+
+    const relatedRecipe: IRecipe | null = await Recipe.findById(recipe);
+
+    if (!relatedRecipe) {
+      res.status(404);
+      throw new Error("Associated recipe not found");
+    }
+
+    // Check if recipe owner is the logged in user
+    if (relatedRecipe.user.toString() !== req.user._id.toString()) {
+      res.status(401);
+      throw new Error("User not authorized to add step");
+    }
+
+    const step: IStep = await Step.create({
+      recipe,
+      description,
+    });
+
+    if (step) {
+      res.status(201).json({
+        _id: step._id,
+        description: step.description,
+        recipe: step.recipe,
+      });
+    } else {
+      res.status(400);
+      throw new Error("Invalid step data");
+    }
+  }
+);
+
+// @desc    Get all steps
+// @route   GET /api/steps
+// @access  Public
+const getSteps = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    const steps: IStep[] = await Step.find({});
+    res.json(steps);
+  }
+);
+
+// @desc    Get step by ID
+// @route   GET /api/steps/:id
+// @access  Public
+const getStepById = asyncHandler(
+  async (req: Request<{ id: string }>, res: Response): Promise<void> => {
+    const step: IStep | null = await Step.findById(req.params.id);
+
+    if (step) {
+      res.json(step);
+    } else {
+      res.status(404);
+      throw new Error("Step not found");
+    }
+  }
+);
+
+// @desc    Update a single step
+// @route   PUT /api/steps/:id
+// @access  Private
+const updateStep = asyncHandler(
+  async (
+    req: Request<{ id: string }, {}, UpdateStepBody>,
+    res: Response
+  ): Promise<void> => {
+    if (!req.user) {
+      res.status(401);
+      throw new Error("Not authorized, no user attached");
+    }
+
+    const step: IStep | null = await Step.findById(req.params.id);
+
+    if (step) {
+      const relatedRecipe: IRecipe | null = await Recipe.findById(step.recipe);
+
+      if (!relatedRecipe) {
+        res.status(404);
+        throw new Error("Associated recipe not found");
+      }
+
+      // Check if recipe owner is the logged in user
+      if (relatedRecipe.user.toString() !== req.user._id.toString()) {
+        res.status(401);
+        throw new Error("User not authorized to update step");
+      }
+
+      step.description = req.body.description || step.description;
+
+      const updatedStep: IStep = await step.save();
+      res.json({
+        message: "Step data updated successfully",
+        data: updatedStep,
+      });
+    } else {
+      res.status(404);
+      throw new Error("Step not found");
+    }
+  }
+);
+
+// @desc    Delete a single step
+// @route   DELETE /api/steps/:id
+// @access  Private
+const deleteStep = asyncHandler(
+  async (req: Request<{ id: string }>, res: Response): Promise<void> => {
+    if (!req.user) {
+      res.status(401);
+      throw new Error("Not authorized, no user attached");
+    }
+
+    const step: IStep | null = await Step.findById(req.params.id);
+
+    if (step) {
+      const relatedRecipe: IRecipe | null = await Recipe.findById(step.recipe);
+
+      if (!relatedRecipe) {
+        res.status(404);
+        throw new Error("Associated recipe not found");
+      }
+
+      // Check if recipe owner is the logged in user
+      if (relatedRecipe.user.toString() !== req.user._id.toString()) {
+        res.status(401);
+        throw new Error("User not authorized to delete step");
+      }
+
+      await step.deleteOne();
+      res.status(204).send();
+    } else {
+      res.status(404);
+      throw new Error("Step not found");
+    }
+  }
+);
+
+export { addStep, getSteps, getStepById, updateStep, deleteStep };
