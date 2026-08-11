@@ -1,8 +1,9 @@
 import path from "path";
-import express from "express";
+import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
 import cors, { CorsOptions } from "cors";
+import { setupSwagger } from "./config/swagger.ts";
 
 import { notFound, errorHandler } from "./middleware/Error.js";
 import connectDB from "./config/db.js";

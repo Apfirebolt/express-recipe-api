@@ -30,12 +30,6 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^10.5.0",
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-    "nodemon": "^3.1.11"
-=======
-=======
->>>>>>> master
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.6",
@@ -43,18 +37,11 @@
     "@types/morgan": "^1.9.9",
     "@types/multer": "^1.4.12",
     "@types/node": "^26.2.0",
-<<<<<<< HEAD
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
-=======
->>>>>>> master
     "nodemon": "^3.1.14",
     "ts-node": "^10.9.2",
     "tsx": "^4.23.12",
     "typescript": "^7.0.2"
-<<<<<<< HEAD
->>>>>>> Stashed changes
-=======
->>>>>>> master
   }
 }
