@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import generateToken from "../utils/generateToken.js";
 import User, { IUser } from "../models/User.ts";
+import { sendWelcomeEmail } from "../utils/mailService.ts";
 
 // @desc    Auth user & get token
 // @route   POST /api/users/login
@@ -19,6 +20,16 @@ const authUser = asyncHandler(async (req: Request, res: Response): Promise<void>
       isAdmin: user.isAdmin,
       token: generateToken(user._id as string),
     });
+
+    // Send email notification to the user (if email is available)
+      try {
+        await sendWelcomeEmail({
+          to: user.email,
+          name: user.username || "Sample User",
+        });
+      } catch (emailError) {
+        console.error("Error sending email:", emailError);
+      }
   } else {
     res.status(401);
     throw new Error("Invalid email or password");

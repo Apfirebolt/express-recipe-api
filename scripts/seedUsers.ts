@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { faker } from "@faker-js/faker";
 import bcrypt from "bcryptjs";
-import User, { IUser } from "../models/User.ts";
+import User from "../models/User.ts";
 
 // Interface for raw user object before insertion into MongoDB
 interface SeedUserPayload {
@@ -11,8 +11,7 @@ interface SeedUserPayload {
   isAdmin: boolean;
 }
 
-const MONGO_URI: string =
-  process.env.MONGO_URI || "mongodb://127.0.0.1:27017/express-recipe";
+const MONGO_URI: string = 'mongodb://admin:yourStrongPassword@168.144.26.11:27017/express-recipe?authSource=admin';
 
 async function seedUsers(): Promise<void> {
   try {
