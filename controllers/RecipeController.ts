@@ -5,6 +5,7 @@ import Step, { IStep } from "../models/Step.ts";
 import Ingredient, { IIngredient } from "../models/Ingredient.ts";
 import Picture, { IPicture } from "../models/Picture.ts";
 import { sendJson } from "../utils/kafkaConnect.ts";
+import { sendWelcomeEmail } from "../utils/mailService.ts";
 
 // Request Body Interfaces
 interface AddRecipeBody {
@@ -31,10 +32,7 @@ interface RecipeKafkaPayload {
 // @route   POST /api/recipes
 // @access  Private
 const addRecipe = asyncHandler(
-  async (
-    req: Request<{}, {}, AddRecipeBody>,
-    res: Response
-  ): Promise<void> => {
+  async (req: Request<{}, {}, AddRecipeBody>, res: Response): Promise<void> => {
     const { title } = req.body;
 
     if (!req.user) {
@@ -67,6 +65,16 @@ const addRecipe = asyncHandler(
         title: recipe.title,
       });
 
+      // Send email notification to the user (if email is available)
+      try {
+        await sendWelcomeEmail({
+          to: "ag20contract@gmail.com",
+          name: req.user.username || "Sample User",
+        });
+      } catch (emailError) {
+        console.error("Error sending email:", emailError);
+      }
+
       res.status(201).json({
         _id: recipe._id,
         title: recipe.title,
@@ -75,7 +83,7 @@ const addRecipe = asyncHandler(
       res.status(400);
       throw new Error("Invalid recipe data");
     }
-  }
+  },
 );
 
 // @desc    Get all recipes (with pagination)
@@ -84,7 +92,7 @@ const addRecipe = asyncHandler(
 const getRecipes = asyncHandler(
   async (
     req: Request<{}, {}, {}, PaginationQuery>,
-    res: Response
+    res: Response,
   ): Promise<void> => {
     const pageSize = 50;
     const page = Number(req.query.page) || 1;
@@ -105,7 +113,7 @@ const getRecipes = asyncHandler(
       pages: Math.ceil(total / pageSize),
       total,
     });
-  }
+  },
 );
 
 // @desc    Get my recipes
@@ -114,7 +122,7 @@ const getRecipes = asyncHandler(
 const getMyRecipes = asyncHandler(
   async (
     req: Request<{}, {}, {}, PaginationQuery>,
-    res: Response
+    res: Response,
   ): Promise<void> => {
     if (!req.user) {
       res.status(401);
@@ -140,7 +148,7 @@ const getMyRecipes = asyncHandler(
       pages: Math.ceil(total / pageSize),
       total,
     });
-  }
+  },
 );
 
 // @desc    Get recipe by ID with ingredients, steps, and pictures
@@ -149,7 +157,7 @@ const getMyRecipes = asyncHandler(
 const getRecipeById = asyncHandler(
   async (req: Request<{ id: string }>, res: Response): Promise<void> => {
     const recipe: IRecipe | null = await Recipe.findById(
-      req.params.id
+      req.params.id,
     ).populate("user", "username email");
 
     if (recipe) {
@@ -172,7 +180,7 @@ const getRecipeById = asyncHandler(
       res.status(404);
       throw new Error("Recipe not found");
     }
-  }
+  },
 );
 
 // @desc    Update a single recipe
@@ -181,7 +189,7 @@ const getRecipeById = asyncHandler(
 const updateRecipe = asyncHandler(
   async (
     req: Request<{ id: string }, {}, UpdateRecipeBody>,
-    res: Response
+    res: Response,
   ): Promise<void> => {
     if (!req.user) {
       res.status(401);
@@ -205,7 +213,7 @@ const updateRecipe = asyncHandler(
       res.status(404);
       throw new Error("Recipe not found");
     }
-  }
+  },
 );
 
 // @desc    Delete a single recipe
@@ -230,7 +238,7 @@ const deleteRecipe = asyncHandler(
       res.status(404);
       throw new Error("Recipe not found");
     }
-  }
+  },
 );
 
 export {
